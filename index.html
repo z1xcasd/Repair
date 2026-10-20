@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ซ่อมบำรุงบ้าน">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef1f2">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<title>ซ่อมบำรุงบ้าน</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: คอลัมน์เดียว เจาะลงไป สถานที่ > เครื่องใช้ > ประวัติ หน้าเครื่องเปิดด้วยการ์ดป้ายเครื่อง */
+:root{
+  color-scheme:light;
+  --bg:#eef1f2; --surface:#ffffff; --ink:#17262b; --mute:#566a70; --line:#d2dbde;
+  --accent:#0e6b5c; --accent-ink:#ffffff; --accent-soft:#dcefea;
+  --warn:#8a4e00; --warn-soft:#fbecd0; --bad:#b3261e;
+  --plate:#e3e8ea; --plate-line:#b4c1c5; --shadow:rgba(16,36,41,.2);
+  --font:"Sarabun","Noto Sans Thai",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --bg:#0f1a1d; --surface:#172529; --ink:#e6eef0; --mute:#97aab0; --line:#2a3d43;
+    --accent:#4fc3ad; --accent-ink:#06261f; --accent-soft:#143c35;
+    --warn:#f0b84a; --warn-soft:#3b2d0e; --bad:#ff8a80;
+    --plate:#223338; --plate-line:#3d535a; --shadow:rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); font-size:16px; line-height:1.5;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:520px;margin:0 auto}
+button{font-family:inherit}
+img{max-width:100%}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1:focus{outline:none}
+
+.top{display:flex;align-items:center;gap:12px;min-height:52px;margin-bottom:14px}
+.titles{min-width:0}
+.titles h1{margin:0;font-size:1.5rem;line-height:1.25;font-weight:700;text-wrap:balance;overflow-wrap:anywhere}
+.crumb{color:var(--mute);font-size:.9rem}
+.iconbtn{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+
+.places{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.place{display:flex;flex-direction:column;gap:4px;text-align:left;min-height:140px;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.place svg{color:var(--accent);margin-bottom:6px}
+.place .nm{font-size:1.2rem;font-weight:700;overflow-wrap:anywhere}
+.place .meta{font-size:.88rem;color:var(--mute)}
+.place.add{align-items:center;justify-content:center;background:transparent;border:2px dashed var(--plate-line);color:var(--accent)}
+.place.add svg{margin:0}
+
+.rows{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px;text-align:left;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:1rem}
+.row .l{min-width:0}
+.row .nm{font-weight:600;overflow-wrap:anywhere}
+.row .sub{font-size:.88rem;color:var(--mute);overflow-wrap:anywhere}
+.row .r{flex:none;max-width:46%;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:.85rem;color:var(--mute);text-align:right}
+
+.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:.78rem;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+
+.plate{position:relative;margin-bottom:16px;padding:18px 20px 14px;border-radius:10px;border:1px solid var(--plate-line);background:var(--plate);cursor:pointer}
+.plate::before,.plate::after{content:"";position:absolute;top:9px;width:7px;height:7px;border-radius:50%;background:var(--plate-line)}
+.plate::before{left:9px}
+.plate::after{right:9px}
+.plate h2{margin:0 0 8px;text-align:center;font-size:.92rem;font-weight:600;color:var(--mute);letter-spacing:.04em}
+.plateedit{position:absolute;top:10px;right:24px;color:var(--mute);display:inline-flex}
+.kvrow{display:flex;align-items:baseline;gap:8px;padding:3px 0}
+.kvrow .k{flex:none;color:var(--mute)}
+.kvrow .dots{flex:1;min-width:12px;border-bottom:1px dotted var(--plate-line);transform:translateY(-4px)}
+.kvrow .v{min-width:0;font-weight:600;text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.kvrow .v.warn{color:var(--warn)}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.sec{margin:0;font-size:1rem;font-weight:700}
+.sum{margin:0 0 4px;font-size:.92rem;color:var(--mute)}
+.card{padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+.rec{cursor:pointer}
+.rec .chips{display:flex;gap:6px;margin-bottom:6px}
+.rec .top2{display:flex;justify-content:space-between;gap:10px}
+.rec .nm{font-weight:600;overflow-wrap:anywhere}
+.rec .price{flex:none;font-weight:600;font-variant-numeric:tabular-nums}
+.rec .when{margin-top:2px;font-size:.88rem;color:var(--mute);overflow-wrap:anywhere}
+.rec .note{margin:6px 0 0;font-size:.92rem;overflow-wrap:anywhere;white-space:pre-line}
+.rec .link{display:inline-block;margin-top:6px;color:var(--accent);font-weight:600;font-size:.92rem;text-decoration:underline;text-underline-offset:3px}
+.rec img.photo{display:block;width:84px;height:84px;margin-top:10px;border-radius:8px;object-fit:cover;background:var(--plate);cursor:zoom-in}
+.rec img.photo.ph{cursor:default}
+.empty{padding:28px 12px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:12px}
+.loading{padding:40px 12px;text-align:center;color:var(--mute)}
+.errbox{padding:20px 14px;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.errbox p{margin:0 0 12px;color:var(--bad);overflow-wrap:anywhere}
+
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 16px var(--shadow)}
+
+.overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,18,20,.55)}
+.sheet{width:100%;max-width:520px;max-height:92%;overflow-y:auto;margin:0;background:var(--surface);color:var(--ink);border-radius:18px 18px 0 0;
+  padding-top:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet h2{margin:0 0 14px;font-size:1.2rem;font-weight:700}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.lbl,.field label{font-size:.9rem;color:var(--mute)}
+.field input,.field textarea{width:100%;min-height:46px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;min-height:46px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink);font-size:1rem;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.smallbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;align-self:flex-start;min-width:46px;min-height:46px;padding:0 14px;border-radius:10px;border:1.5px dashed var(--plate-line);background:transparent;color:var(--accent);font-size:.95rem;font-weight:600;cursor:pointer}
+.photoprev{display:block;width:84px;height:84px;margin-top:8px;border-radius:8px;object-fit:cover;background:var(--plate)}
+.hint{font-size:.82rem;color:var(--mute)}
+.err{min-height:1.3em;margin:0 0 6px;font-size:.9rem;color:var(--bad);overflow-wrap:anywhere}
+.sheetbtns{display:flex;gap:10px}
+.sheetbtns .iconbtn{width:48px;height:48px;color:var(--bad)}
+.primary{flex:1;min-height:48px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:1rem;font-weight:700;cursor:pointer}
+.danger{flex:1;min-height:48px;border:0;border-radius:10px;background:var(--bad);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+.primary:disabled,.danger:disabled{opacity:.6;cursor:default}
+.ghost{min-height:48px;padding:0 18px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink);font-size:1rem;font-weight:600;cursor:pointer}
+
+.viewer{align-items:center;background:rgba(8,18,20,.88);cursor:zoom-out}
+.viewer img{max-width:100%;max-height:85%;border-radius:8px;object-fit:contain}
+.vclose{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px))}
+.plate .sep{border-top:1px solid var(--plate-line);margin:8px 0 6px}
+.taglone{padding:3px 0;font-weight:600;overflow-wrap:anywhere}
+.field textarea{resize:vertical}
+.chk{display:flex;align-items:center;gap:10px;color:var(--ink);font-size:1rem;padding:4px 0}
+.chk input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.scanzone{display:flex;flex-direction:column;gap:6px}
+.cropwrap{position:relative;line-height:0;margin-top:4px}
+.cropwrap>img{display:block;width:100%;border-radius:10px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.cropdim{position:absolute;inset:0;overflow:hidden;border-radius:10px;pointer-events:none}
+.cropbox{position:absolute;border:2px solid #22c55e;box-shadow:0 0 0 999px rgba(0,0,0,.5)}
+.cedge{position:absolute;touch-action:none}
+.cedge.eh{height:40px;margin-top:-20px}
+.cedge.ev{width:40px;margin-left:-20px}
+.ccorner{position:absolute;z-index:2;width:48px;height:48px;margin:-24px 0 0 -24px;touch-action:none}
+.ccorner::after{content:"";position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#22c55e;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.chandle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#22c55e;color:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.scanres{display:block;max-width:100%;border-radius:10px;border:1px solid var(--line)}
+.cleanbox{padding:14px 18px 10px;cursor:default}.cleanbox::before,.cleanbox::after{display:none}
+.row .l{flex:1}
+.row .thumb{flex:none;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--plate)}
+.row .chipline{margin-top:6px}
+.kvrow .vlink{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.btnrow{display:flex;gap:8px}.btnrow .smallbtn{flex:1}
+.loginbox{padding:18px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top" id="top"></header>
+  <main id="view"></main>
+</div>
+<button class="fab" id="fab" type="button" hidden></button>
+<div id="sheet-root"></div>
+
+<script>
+(function(){
+  var MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var $=function(id){return document.getElementById(id);};
+  var ICONS={
+    plus:'<path d="M12 5v14M5 12h14"/>',
+    back:'<path d="M15 5l-7 7 7 7"/>',
+    house:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>',
+    building:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>',
+    pin:'<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
+    camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    pencil:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
+    trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/>',
+    image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+    paste:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h4"/>',
+    close:'<path d="M6 6l12 12M18 6L6 18"/>',
+    vert:'<path d="M12 5v14M8 8l4-4 4 4M8 16l4 4 4-4"/>',
+    horiz:'<path d="M5 12h14M8 8l-4 4 4 4M16 8l4 4-4 4"/>'
+  };
+  function icon(n,s){
+    var w=document.createElement('span'); w.style.display='inline-flex';
+    w.innerHTML='<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||ICONS.pin)+'</svg>';
+    return w;
+  }
+  function h(tag,props){
+    var e=document.createElement(tag); props=props||{};
+    for(var k in props){
+      var v=props[k]; if(v==null||v===false) continue;
+      if(k==='class') e.className=v;
+      else if(k==='text') e.textContent=v;
+      else if(k.slice(0,2)==='on') e.addEventListener(k.slice(2),v);
+      else e.setAttribute(k,v===true?'':v);
+    }
+    for(var i=2;i<arguments.length;i++){
+      var c=arguments[i]; if(c==null||c===false) continue;
+      if(Array.isArray(c)) c.forEach(function(x){ if(x) e.appendChild(typeof x==='string'?document.createTextNode(x):x); });
+      else e.appendChild(typeof c==='string'?document.createTextNode(c):c);
+    }
+    return e;
+  }
+
+  /* ---------- เรียก Apps Script ---------- */
+  // ใส่ลิงก์ /exec ของ Apps Script ตรงนี้ (ลิงก์ไม่ใช่ความลับ รหัสเข้าใช้จะพิมพ์ในแอปครั้งแรกและจำไว้ในเครื่อง)
+  var EXEC_URL='https://script.google.com/macros/s/AKfycbxS8FfQ1myYuOYsY1LvU9Ho7aWVMAHIHoXqjr5JrxEiQCXLodWmhDsvgRfE8SUZRvhf/exec';
+  var TOKEN_KEY='repair_token';
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
+  function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY,t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+  function api(name,arg){
+    return fetch(EXEC_URL,{method:'POST',redirect:'follow',cache:'no-store',
+      body:JSON.stringify({token:getToken(),fn:name,args:arg===undefined?[]:[arg]})})
+      .then(function(r){ if(!r.ok) throw new Error('เซิร์ฟเวอร์ตอบกลับผิดพลาด ('+r.status+')'); return r.json(); },
+        function(){ throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ต'); })
+      .then(function(res){
+        if(res&&res.ok) return res.data;
+        if(res&&res.auth){ setToken(''); showLogin('รหัสเข้าใช้ไม่ถูกต้อง หรือถูกเปลี่ยนแล้ว'); }
+        throw new Error((res&&res.error)||'ไม่สำเร็จ');
+      });
+  }
+  function showLogin(msg){
+    var root=$('sheet-root'); if(root) root.textContent='';
+    var v=$('view'); v.textContent=''; $('fab').hidden=true;
+    var t=$('top'); t.textContent=''; t.appendChild(h('div',{class:'titles'},h('h1',{text:'ซ่อมบำรุงบ้าน'})));
+    var inp=h('input',{type:'password',id:'tok',autocomplete:'current-password',autocapitalize:'none',autocorrect:'off',spellcheck:'false'});
+    var err=h('p',{class:'err',role:'alert',text:msg||''});
+    var form=h('form',{class:'card loginbox',novalidate:true},
+      h('div',{class:'field'},h('label',{for:'tok',text:'รหัสเข้าใช้'}),inp),
+      h('div',{class:'hint',text:'ใส่ครั้งเดียว แอปจะจำไว้ในเครื่องนี้'}),err,
+      h('button',{type:'submit',class:'primary',style:'width:100%;margin-top:8px',text:'เข้าใช้'}));
+    form.addEventListener('submit',function(e){ e.preventDefault(); var t2=inp.value.trim(); if(!t2){ err.textContent='กรอกรหัสเข้าใช้ก่อน'; return; } setToken(t2); boot(); });
+    v.appendChild(form); inp.focus();
+  }
+  function errMsg(e){
+    var m=(e&&e.message)?String(e.message).replace(/^Error:\s*/,''):'';
+    return 'ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง'+(m?' ('+m.slice(0,120)+')':'');
+  }
+
+  /* ---------- วันที่ (แสดงเป็นไทย นับเป็นเดือน วัน) ---------- */
+  function pad(n){return n<10?'0'+n:''+n;}
+  function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  var now=new Date(); var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  function parse(s){var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]);}
+  function daysSince(s){return Math.round((today-parse(s))/864e5);}
+  function fmt(s){var d=parse(s); return d.getDate()+' '+MONTHS[d.getMonth()]+' '+(d.getFullYear()+543);}
+  function ago(s){
+    var n=daysSince(s); if(n<=0) return 'วันนี้';
+    var a=parse(s), m=(today.getFullYear()-a.getFullYear())*12+today.getMonth()-a.getMonth(), d=today.getDate()-a.getDate();
+    if(d<0){m--; d+=new Date(today.getFullYear(),today.getMonth(),0).getDate();}
+    if(m<=0) return n+' วันก่อน';
+    return m+' เดือน'+(d>0?' '+d+' วัน':'')+'ก่อน';
+  }
+  function baht(n){return '฿'+Number(n).toLocaleString('th-TH');}
+  function normLink(s){s=(s||'').trim(); if(!s) return ''; return /^https?:\/\//i.test(s)?s:'https://'+s;}
+
+  /* ---------- ข้อมูล ---------- */
+  var data=[], lastLoad=0;
+  var photoCache={}, photoReq={};
+  var S={view:'home',placeId:null,devId:null};
+  function curPlace(){return data.filter(function(p){return p.id===S.placeId;})[0];}
+  function curDev(){var p=curPlace(); return p&&p.devices.filter(function(d){return d.id===S.devId;})[0];}
+
+  function warranty(d){
+    if(!d.warranty) return null;
+    var left=Math.round((parse(d.warranty)-today)/864e5);
+    if(left<0) return null;
+    if(left===0) return {t:'ประกันหมดวันนี้',c:'warn'};
+    if(left<=90){
+      var e=parse(d.warranty), m=(e.getFullYear()-today.getFullYear())*12+e.getMonth()-today.getMonth(), dd=e.getDate()-today.getDate();
+      if(dd<0){m--; dd+=new Date(e.getFullYear(),e.getMonth(),0).getDate();}
+      var txt=m<=0?left+' วัน':m+' เดือน'+(dd>0?' '+dd+' วัน':'');
+      return {t:'ประกันเหลือ '+txt,c:'warn'};
+    }
+    return {t:'ประกันถึง '+fmt(d.warranty),c:''};
+  }
+
+  function loadPhoto(id){
+    if(photoCache[id]) return Promise.resolve(photoCache[id]);
+    if(photoReq[id]) return photoReq[id];
+    photoReq[id]=api('getPhoto',id).then(function(r){ photoCache[id]=r.data; delete photoReq[id]; return r.data; },
+      function(e){ delete photoReq[id]; throw e; });
+    return photoReq[id];
+  }
+  function resizeImage(file){
+    return new Promise(function(resolve,reject){
+      var url=URL.createObjectURL(file), im=new Image();
+      im.onload=function(){
+        var max=1280, w=im.naturalWidth, hh=im.naturalHeight, s=Math.min(1,max/Math.max(w,hh));
+        var c=document.createElement('canvas'); c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(hh*s));
+        c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg',0.8));
+      };
+      im.onerror=function(){ URL.revokeObjectURL(url); reject(new Error('อ่านรูปไม่ได้')); };
+      im.src=url;
+    });
+  }
+
+  /* ---------- views ---------- */
+  function renderTop(){
+    var t=$('top'); t.textContent='';
+    var title='ซ่อมบำรุงบ้าน',crumb='',back=null;
+    var p=S.view==='home'?null:curPlace(), d=S.view==='device'?curDev():null;
+    if(S.view==='place'&&p){title=p.name;crumb='เครื่องใช้ไฟฟ้าและอุปกรณ์';back=function(){go('home');};}
+    else if(S.view==='device'&&p&&d){title=d.name;crumb=p.name;back=function(){go('place',S.placeId);};}
+    if(back) t.appendChild(h('button',{class:'iconbtn',type:'button','aria-label':'กลับ',title:'กลับ',onclick:back},icon('back',22)));
+    var h1=h('h1',{tabindex:'-1',text:title});
+    t.appendChild(h('div',{class:'titles'},crumb?h('div',{class:'crumb',text:crumb}):null,h1));
+    if(S.view==='place'&&p) t.appendChild(h('button',{class:'iconbtn',style:'margin-left:auto',type:'button','aria-label':'แก้ไขสถานที่',title:'แก้ไขสถานที่',onclick:editPlace},icon('pencil',20)));
+    return h1;
+  }
+
+  function renderHome(v){
+    var grid=h('div',{class:'places'});
+    data.forEach(function(p){
+      grid.appendChild(h('button',{class:'place',type:'button',onclick:function(){go('place',p.id);}},
+        icon(p.icon,30),
+        h('span',{class:'nm',text:p.name}),
+        h('span',{class:'meta',text:p.devices.length+' รายการ'})
+      ));
+    });
+    grid.appendChild(h('button',{class:'place add',type:'button','aria-label':'เพิ่มสถานที่',title:'เพิ่มสถานที่',onclick:addPlace},icon('plus',36)));
+    v.appendChild(grid);
+  }
+
+  function devThumb(d){
+    if(!d.photoId) return null;
+    var im=h('img',{class:'thumb',alt:''});
+    loadPhoto(d.photoId).then(function(src){ im.src=src; },function(){ im.remove(); });
+    return im;
+  }
+  function renderPlace(v){
+    var p=curPlace();
+    if(!p.devices.length){
+      v.appendChild(h('div',{class:'empty',text:'ยังไม่มีเครื่องใช้ใน'+p.name+' กดปุ่ม + มุมขวาล่างเพื่อเพิ่ม'}));
+      return;
+    }
+    var ul=h('ul',{class:'rows'});
+    p.devices.slice().sort(function(a,b){return a.name.localeCompare(b.name,'th');}).forEach(function(d){
+      var w=warranty(d);
+      var sub=[d.brand,d.model].filter(Boolean).join(' ')||'ไม่ระบุยี่ห้อ';
+      ul.appendChild(h('li',null,h('button',{class:'row',type:'button',onclick:function(){go('device',d.id);}},
+        h('span',{class:'l'},h('div',{class:'nm',text:d.name}),h('div',{class:'sub',text:sub}),
+          w?h('div',{class:'chipline'},h('span',{class:'chip '+w.c,text:w.t})):null),
+        devThumb(d)
+      )));
+    });
+    v.appendChild(ul);
+  }
+
+  function kvRows(rows){
+    var box=h('div');
+    rows.forEach(function(r){
+      box.appendChild(h('div',{class:'kvrow'},
+        h('span',{class:'k',text:r[0]}),h('span',{class:'dots','aria-hidden':'true'}),
+        r[3]?h('a',{class:'v vlink',href:r[3],target:'_blank',rel:'noopener',text:r[1],onclick:function(e){e.stopPropagation();},onkeydown:function(e){e.stopPropagation();}})
+            :h('span',{class:'v'+(r[2]?' warn':''),text:r[1]})));
+    });
+    return box;
+  }
+
+  // ช่องร้านแปะลิงก์ได้ ข้อความแสดงเป็นชื่อร้าน ส่วนลิงก์เป็นปุ่ม "เปิดลิงก์" (รวมลิงก์เก่าจากช่องลิงก์เดิมด้วย)
+  var URL_RE=/(?:https?:\/\/|www\.)\S+/gi;
+  function shopLine(r){
+    var raw=((r.shop||'')+' '+(r.link||'')).trim(); if(!raw) return null;
+    var urls=raw.match(URL_RE)||[], text=raw.replace(URL_RE,' ').replace(/\s+/g,' ').trim();
+    var line=h('div',{class:'when'},'ร้าน'+(text?' '+text:''));
+    urls.forEach(function(u,i){
+      line.appendChild(document.createTextNode(' '));
+      line.appendChild(h('a',{class:'link',href:normLink(u),target:'_blank',rel:'noopener',text:urls.length>1?'เปิดลิงก์ '+(i+1):'เปิดลิงก์',onclick:function(e){e.stopPropagation();}}));
+    });
+    return line;
+  }
+  function recCard(r){
+    var photo=null;
+    if(r.photoId){
+      photo=h('img',{class:'photo ph',alt:''});
+      loadPhoto(r.photoId).then(function(src){
+        photo.src=src; photo.alt='รูป '+r.item; photo.classList.remove('ph');
+        photo.addEventListener('click',function(e){e.stopPropagation();viewPhoto(src);});
+      },function(){ photo.alt='โหลดรูปไม่สำเร็จ'; });
+    }
+    return h('article',{class:'card rec',role:'button',tabindex:'0','aria-label':'แก้ไข '+r.item,onclick:function(){editRecord(r);},onkeydown:function(e){if(e.key==='Enter') editRecord(r);}},
+      h('div',{class:'top2'},h('span',{class:'nm',text:r.item}),r.price!=null?h('span',{class:'price',text:baht(r.price)}):null),
+      h('div',{class:'when',text:fmt(r.date)+' ('+ago(r.date)+')'}),
+      shopLine(r),
+      r.note?h('p',{class:'note',text:r.note}):null,
+      photo);
+  }
+
+  function renderDevice(v){
+    var d=curDev(), w=warranty(d);
+    var rows=[['ยี่ห้อ',d.brand],['รุ่น',d.model,false,d.model?'https://www.google.com/search?q='+encodeURIComponent([d.brand,d.model].filter(Boolean).join(' ')):null],['ซื้อเมื่อ',d.bought?fmt(d.bought):''],['ประกัน',w?w.t:'',w&&w.c==='warn']].filter(function(r){return r[1];});
+    var plate=h('section',{class:'plate',role:'button',tabindex:'0','aria-label':'ป้ายเครื่อง แตะเพื่อแก้ไข',onclick:editDevice,onkeydown:function(e){if(e.key==='Enter') editDevice();}},
+      h('h2',{text:'ป้ายเครื่อง'}),h('span',{class:'plateedit'},icon('pencil',16)));
+    var tagLines=String(d.tag||'').split('\n').map(function(l){return l.trim();}).filter(Boolean);
+    var tagKv=[], tagFree=[];
+    tagLines.forEach(function(l){ var m=/^([^:：]{1,40})[:：]\s*(.+)$/.exec(l); if(m) tagKv.push([m[1].trim(),m[2].trim()]); else tagFree.push(l); });
+    if(rows.length) plate.appendChild(kvRows(rows));
+    if(rows.length&&tagLines.length) plate.appendChild(h('div',{class:'sep'}));
+    if(tagKv.length) plate.appendChild(kvRows(tagKv));
+    tagFree.forEach(function(l){ plate.appendChild(h('div',{class:'taglone',text:l})); });
+    if(!rows.length&&!tagLines.length) plate.appendChild(h('div',{class:'hint',text:'ยังไม่ได้ใส่ข้อมูลเครื่อง แตะเพื่อเพิ่ม'}));
+    v.appendChild(plate);
+
+    var panel=h('div',{class:'stack'});
+    var last={};
+    d.history.forEach(function(r){ var k=r.item.trim(); if(k&&(!last[k]||r.date>last[k])) last[k]=r.date; });
+    var lk=Object.keys(last);
+    if(lk.length){
+      var cb=h('section',{class:'plate cleanbox','aria-label':'บำรุงรักษาล่าสุด'},h('h2',{text:'บำรุงรักษาล่าสุด'}));
+      cb.appendChild(kvRows(lk.sort(function(a,b){return last[a]<last[b]?1:(last[a]>last[b]?-1:0);}).map(function(k){return [k,ago(last[k])];})));
+      panel.appendChild(cb);
+    }
+    panel.appendChild(h('h2',{class:'sec',text:'ประวัติบำรุงรักษา ('+d.history.length+')'}));
+    if(!d.history.length) panel.appendChild(h('div',{class:'empty',text:'ยังไม่มีประวัติบำรุงรักษา กดปุ่ม + มุมขวาล่างเพื่อเพิ่ม'}));
+    else{
+      var total=d.history.reduce(function(a,r){return a+(r.price||0);},0);
+      panel.appendChild(h('p',{class:'sum',text:'รวม '+baht(total)+' จาก '+d.history.length+' ครั้ง'}));
+    }
+    d.history.slice().sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);}).forEach(function(r){
+      panel.appendChild(recCard(r));
+    });
+    v.appendChild(panel);
+  }
+
+  function fabConfig(){
+    if(S.view==='home') return null;
+    if(S.view==='place') return {label:'เพิ่มเครื่องใช้หรืออุปกรณ์',fn:addDevice};
+    return {label:'เพิ่มประวัติบำรุงรักษา',fn:addRecord};
+  }
+
+  function render(nav){
+    // ถ้ารายการที่เปิดอยู่ถูกลบไปแล้ว (เช่น แก้ในชีต) ให้กลับหน้าแรก
+    if(S.view!=='home'&&!curPlace()){S.view='home';}
+    if(S.view==='device'&&!curDev()){S.view='place';}
+    var h1=renderTop();
+    var v=$('view'); v.textContent='';
+    if(S.view==='home') renderHome(v); else if(S.view==='place') renderPlace(v); else renderDevice(v);
+    var fab=$('fab'), cfg=fabConfig();
+    fab.textContent='';
+    if(cfg){
+      fab.hidden=false; fab.setAttribute('aria-label',cfg.label); fab.title=cfg.label;
+      fab.appendChild(icon('plus',30)); fab.onclick=cfg.fn;
+    }else{ fab.hidden=true; fab.onclick=null; }
+    if(nav){ window.scrollTo(0,0); h1.focus({preventScroll:true}); }
+  }
+  function go(view,id){
+    if(view==='place') S.placeId=id;
+    if(view==='device') S.devId=id;
+    S.view=view; render(true);
+  }
+
+  /* ---------- ครอปและปรับภาพ (วิธีเดียวกับแอปทะเบียนหนังสือ: ลบเงา + คมชัด ขาวดำ) ---------- */
+  // ภาพย่อสำหรับแสดงตอนลากเส้นครอปเท่านั้น (ภาพที่ใช้อ่านจริงมาจากรูปต้นฉบับ)
+  function previewOf(im){
+    var s=Math.min(1,1200/im.naturalWidth),c=document.createElement('canvas');
+    c.width=Math.max(1,Math.round(im.naturalWidth*s));c.height=Math.max(1,Math.round(im.naturalHeight*s));
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    return c.toDataURL('image/jpeg',0.8);
+  }
+  // ขาวดำ + ลบเงา: หารด้วยความสว่างเฉลี่ยรอบจุด (= สีพื้นกระดาษตรงนั้น) แล้วดึงระดับให้ 2% ที่เข้มสุดเป็นดำ
+  // ผลเท่ากับวิธี integral image ของแอปทะเบียน แต่รวมค่าแบบเลื่อนหน้าต่างเพื่อกินหน่วยความจำน้อยกว่าเมื่อรูปใหญ่
+  function dcEnhance(canvas){
+    var w=canvas.width,h=canvas.height,ctx=canvas.getContext('2d'),imgData=ctx.getImageData(0,0,w,h),px=imgData.data,n=w*h;
+    var gray=new Float32Array(n),hs=new Float32Array(n),i,p,x,y,row,s;
+    for(i=0,p=0;i<n;i++,p+=4)gray[i]=0.299*px[p]+0.587*px[p+1]+0.114*px[p+2];
+    var r=Math.max(15,Math.round(Math.min(w,h)/6));
+    // 1) ผลรวมตามแถวในหน้าต่าง [x-r, x+r] (ตัดที่ขอบรูป)
+    for(y=0;y<h;y++){
+      row=y*w;s=0;
+      for(x=0;x<=Math.min(w-1,r);x++)s+=gray[row+x];
+      for(x=0;x<w;x++){
+        hs[row+x]=s;
+        if(x+r+1<w)s+=gray[row+x+r+1];
+        if(x-r>=0)s-=gray[row+x-r];
+      }
+    }
+    // 2) รวมตามคอลัมน์แบบเลื่อนหน้าต่าง แล้วหารสีพื้น (เขียนผลทับ gray)
+    var col=new Float64Array(w),cw=new Float64Array(w),lo=0,hi=-1;
+    for(x=0;x<w;x++)cw[x]=Math.min(w,x+r+1)-Math.max(0,x-r);
+    for(y=0;y<h;y++){
+      var nlo=Math.max(0,y-r),nhi=Math.min(h-1,y+r);
+      while(hi<nhi){hi++;for(x=0;x<w;x++)col[x]+=hs[hi*w+x];}
+      while(lo<nlo){for(x=0;x<w;x++)col[x]-=hs[lo*w+x];lo++;}
+      var rows=nhi-nlo+1;row=y*w;
+      for(x=0;x<w;x++){
+        var bg=col[x]/(rows*cw[x]);
+        gray[row+x]=bg>0?Math.min(255,gray[row+x]/bg*235):255;
+      }
+    }
+    var hist=new Uint32Array(256),k,v;
+    for(k=0;k<n;k++)hist[gray[k]|0]++;
+    var low=0,acc=0,target=n*0.02;
+    for(v=0;v<256;v++){acc+=hist[v];if(acc>=target){low=v;break;}}
+    var range=Math.max(1,235-low),val;
+    for(i=0,p=0;i<n;i++,p+=4){
+      val=(gray[i]-low)/range*255;val=val<0?0:val>255?255:val;
+      px[p]=px[p+1]=px[p+2]=val;
+    }
+    ctx.putImageData(imgData,0,0);
+  }
+  // เพิ่มความคมขอบตัวอักษร (unsharp mask 3x3 เท่าแอปทะเบียน; รูปด้านยาวเกิน 2000px ขยายรัศมีตามสัดส่วน)
+  function dcSharpen(canvas,amount){
+    var w=canvas.width,h=canvas.height,ctx=canvas.getContext('2d'),d=ctx.getImageData(0,0,w,h),px=d.data,n=w*h;
+    var r=Math.max(1,Math.round(Math.max(w,h)/2000));
+    if(w<2*r+1||h<2*r+1)return;
+    var g=new Float32Array(n),t=new Float32Array(n),i,x,y,j,k,s,row,v,area=(2*r+1)*(2*r+1);
+    for(i=0;i<n;i++)g[i]=px[i*4];
+    for(y=0;y<h;y++){row=y*w;for(x=r;x<w-r;x++){s=0;for(j=-r;j<=r;j++)s+=g[row+x+j];t[row+x]=s;}}
+    for(y=r;y<h-r;y++)for(x=r;x<w-r;x++){
+      k=y*w+x;s=0;for(j=-r;j<=r;j++)s+=t[k+j*w];
+      v=g[k]+amount*(g[k]-s/area);v=v<0?0:v>255?255:v;
+      px[k*4]=px[k*4+1]=px[k*4+2]=v;
+    }
+    ctx.putImageData(d,0,0);
+  }
+  // ตัดเฉพาะส่วนที่ครอป ที่ความละเอียดเดิม (ลดเฉพาะเมื่อเกินขีดจำกัดแคนวาสของ iOS ราว 16 ล้านพิกเซล)
+  function cropToCanvas(st,auto){
+    var W=st.im.naturalWidth,H=st.im.naturalHeight;
+    var sx=Math.round(st.x1*W),sy=Math.round(st.y1*H),sw=Math.max(1,Math.round((st.x2-st.x1)*W)),sh=Math.max(1,Math.round((st.y2-st.y1)*H));
+    var k=Math.min(1,Math.sqrt(16000000/(sw*sh))),cw=Math.max(1,Math.round(sw*k)),ch=Math.max(1,Math.round(sh*k));
+    var cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+    cv.getContext('2d').drawImage(st.im,sx,sy,sw,sh,0,0,cw,ch);
+    if(auto){dcEnhance(cv);dcSharpen(cv,1.2);}
+    return cv;
+  }
+
+
+  /* ---------- ฟอร์มแบบแผ่นล่าง ---------- */
+  function openSheet(o){
+    var opener=document.activeElement, getters={}, firstInput=null, busyCount=0, pasteTargets=[];
+    var overlay=h('div',{class:'overlay'});
+    var form=h('form',{class:'sheet',role:'dialog','aria-modal':'true','aria-labelledby':'sheetTitle',novalidate:true});
+    form.appendChild(h('h2',{id:'sheetTitle',text:o.title}));
+
+    o.fields.forEach(function(f){
+      var id='f-'+f.key, wrap=h('div',{class:'field'});
+      if(f.kind==='seg'){
+        var cur=f.value, group=h('div',{class:'seg',role:'group','aria-labelledby':id+'-l'});
+        wrap.appendChild(h('div',{class:'lbl',id:id+'-l',text:f.label}));
+        f.options.forEach(function(op){
+          group.appendChild(h('button',{type:'button','aria-pressed':op[0]===cur?'true':'false',text:op[1],onclick:function(){
+            cur=op[0]; Array.prototype.forEach.call(group.children,function(x,i){x.setAttribute('aria-pressed',f.options[i][0]===cur?'true':'false');});
+          }}));
+        });
+        wrap.appendChild(group); getters[f.key]=function(){return cur;};
+      }else if(f.kind==='photo'){
+        var newData=null, prev=h('img',{class:'photoprev',alt:'',hidden:true});
+        var file=h('input',{type:'file',accept:'image/*',hidden:true,id:id});
+        var hint=h('div',{class:'hint',text:''});
+        if(f.value){
+          prev.hidden=false;
+          loadPhoto(f.value).then(function(src){ if(!newData){prev.src=src; prev.alt='รูปเดิม';} },function(){ if(!newData) prev.hidden=true; });
+        }
+        file.addEventListener('change',function(){
+          var fl=file.files&&file.files[0]; if(!fl) return;
+          busyCount++; hint.textContent='กำลังย่อรูป...';
+          resizeImage(fl).then(function(d){ newData=d; prev.src=d; prev.alt='ตัวอย่างรูป'; prev.hidden=false; hint.textContent=''; },
+            function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองเลือกรูปอื่น'; })
+            .then(function(){ busyCount--; file.value=''; });
+        });
+        var useImage=function(fl){
+          busyCount++; hint.textContent='กำลังย่อรูป...';
+          resizeImage(fl).then(function(d){ newData=d; prev.src=d; prev.alt='ตัวอย่างรูป'; prev.hidden=false; hint.textContent=''; },
+            function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น'; })
+            .then(function(){ busyCount--; });
+        };
+        var pasteImage=function(){
+          hint.textContent='';
+          if(!(navigator.clipboard&&navigator.clipboard.read)){ hint.textContent='เครื่องนี้วางรูปจากปุ่มไม่ได้ ใช้ "เลือกรูป" แทน'; return; }
+          navigator.clipboard.read().then(function(list){
+            for(var i=0;i<list.length;i++){
+              var t=list[i].types.filter(function(x){return /^image\//.test(x);})[0];
+              if(t) return list[i].getType(t).then(useImage);
+            }
+            hint.textContent='ไม่พบรูปในคลิปบอร์ด คัดลอกรูปก่อนแล้วลองใหม่';
+          }).catch(function(){ hint.textContent='วางรูปไม่สำเร็จ คัดลอกรูปใหม่แล้วกด "วางรูป" อีกครั้ง'; });
+        };
+        if(f.pick) pasteTargets.push(function(items){
+          for(var i=0;i<(items||[]).length;i++){ if(items[i].kind==='file'&&/^image\//.test(items[i].type)){ useImage(items[i].getAsFile()); return true; } }
+          return false;
+        });
+        wrap.appendChild(h('div',{class:'lbl',text:f.label}));
+        if(f.pick){
+          wrap.appendChild(h('div',{class:'btnrow'},
+            h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('image',22),'เลือกรูป'),
+            h('button',{type:'button',class:'smallbtn',onclick:pasteImage},icon('paste',22),'วางรูป')));
+        }else{
+          wrap.appendChild(h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('camera',22),f.value?'เปลี่ยนรูป':'ถ่ายรูปหรือเลือกรูป'));
+        }
+        wrap.appendChild(file); wrap.appendChild(prev); wrap.appendChild(hint);
+        getters[f.key]=function(){return newData;};
+      }else if(f.kind==='tagscan'){
+        var auto=h('input',{type:'checkbox',id:id+'-auto',checked:true});
+        var camIn=h('input',{type:'file',accept:'image/*',capture:'environment',hidden:true,id:id+'-cam'});
+        var galIn=h('input',{type:'file',accept:'image/*',hidden:true,id:id+'-gal'});
+        var zone=h('div',{class:'scanzone'});
+        var tstat=h('div',{class:'hint',role:'status',text:''});
+        var tarea=h('textarea',{id:id,rows:6,text:f.value||''});
+        var cst=null;
+        var pick=function(inp){return function(){var fl=inp.files&&inp.files[0]; if(!fl) return; inp.value=''; startCrop(fl);};};
+        camIn.addEventListener('change',pick(camIn)); galIn.addEventListener('change',pick(galIn));
+        var startCrop=function(file){
+          var rd=new FileReader();
+          rd.onerror=function(){tstat.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น';};
+          rd.onload=function(e){
+            var im=new Image();
+            im.onload=function(){cst={im:im,prev:previewOf(im),x1:.08,y1:.08,x2:.92,y2:.92}; showCrop();};
+            im.onerror=function(){tstat.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น';};
+            im.src=e.target.result;
+          };
+          rd.readAsDataURL(file);
+        };
+        var showCrop=function(){
+          zone.textContent=''; tstat.textContent='';
+          var cropEl=h('div',{class:'cropwrap'}), dim=h('div',{class:'cropdim'}), box=h('div',{class:'cropbox'}), hs={};
+          dim.appendChild(box);
+          cropEl.appendChild(h('img',{src:cst.prev,alt:'รูปป้ายเครื่อง',draggable:'false'})); cropEl.appendChild(dim);
+          var pos=function(el,l,t,w,hh){
+            if(l!=null) el.style.left=l*100+'%'; if(t!=null) el.style.top=t*100+'%';
+            if(w!=null) el.style.width=w*100+'%'; if(hh!=null) el.style.height=hh*100+'%';
+          };
+          var layout=function(){
+            var s=cst, bw=s.x2-s.x1, bh=s.y2-s.y1;
+            pos(box,s.x1,s.y1,bw,bh);
+            pos(hs.t,s.x1,s.y1,bw,null); pos(hs.b,s.x1,s.y2,bw,null);
+            pos(hs.l,s.x1,s.y1,null,bh); pos(hs.r,s.x2,s.y1,null,bh);
+            pos(hs.tl,s.x1,s.y1); pos(hs.tr,s.x2,s.y1); pos(hs.bl,s.x1,s.y2); pos(hs.br,s.x2,s.y2);
+          };
+          var GAP=.15;
+          // sides: ด้านที่ขยับเมื่อลาก เช่น 't' = เส้นบน, 'tl' = มุมบนซ้าย (ขยับเส้นบนกับเส้นซ้ายพร้อมกัน)
+          var bind=function(el,sides){
+            var active=false;
+            el.addEventListener('pointerdown',function(ev){active=true; el.setPointerCapture(ev.pointerId); ev.preventDefault();});
+            el.addEventListener('pointermove',function(ev){
+              if(!active) return;
+              var r=cropEl.getBoundingClientRect(), s=cst;
+              var fx=Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width)), fy=Math.min(1,Math.max(0,(ev.clientY-r.top)/r.height));
+              if(sides.indexOf('t')>=0) s.y1=Math.min(fy,s.y2-GAP);
+              if(sides.indexOf('b')>=0) s.y2=Math.max(fy,s.y1+GAP);
+              if(sides.indexOf('l')>=0) s.x1=Math.min(fx,s.x2-GAP);
+              if(sides.indexOf('r')>=0) s.x2=Math.max(fx,s.x1+GAP);
+              layout();
+            });
+            var end=function(){active=false;};
+            el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+          };
+          [['t','eh'],['b','eh'],['l','ev'],['r','ev']].forEach(function(d){
+            var e=h('div',{class:'cedge '+d[1],'aria-hidden':'true'},h('span',{class:'chandle'},icon(d[1]==='eh'?'vert':'horiz',20)));
+            bind(e,d[0]); hs[d[0]]=e; cropEl.appendChild(e);
+          });
+          ['tl','tr','bl','br'].forEach(function(c){
+            var e=h('div',{class:'ccorner','aria-hidden':'true'});
+            bind(e,c); hs[c]=e; cropEl.appendChild(e);
+          });
+          layout();
+          var again=h('button',{type:'button',class:'ghost',style:'flex:1',onclick:function(){camIn.click();},text:'ถ่ายใหม่'});
+          var ok=h('button',{type:'button',class:'primary',text:'ตกลง',onclick:function(){confirmCrop(ok,again);}});
+          zone.appendChild(h('div',{class:'hint',text:'ลากจุดสีเขียวที่มุม หรือเส้นขอบ ให้ล้อมเฉพาะป้ายเครื่อง แล้วกด "ตกลง"'}));
+          zone.appendChild(cropEl);
+          zone.appendChild(h('div',{class:'sheetbtns',style:'margin-top:10px'},again,ok));
+        };
+        /*READ_START*/
+        var readErr=function(e){
+          var m=(e&&e.message)?String(e.message).replace(/^(Error|Exception):\s*/,'').slice(0,200):'';
+          return m||'อ่านป้ายไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง';
+        };
+        var readImage=function(dataUrl){
+          busyCount++; tstat.textContent='กำลังอ่านข้อความ...';
+          var old=zone.querySelector('.retry'); if(old) old.remove();
+          api('readTag',dataUrl).then(function(res){
+            tarea.value=(tarea.value.trim()?tarea.value.trim()+'\n':'')+res.text;
+            tstat.textContent='อ่านเสร็จแล้ว ตรวจและแก้คำที่อ่านเพี้ยนได้ ตัวอักษรที่ไม่ชัดมี (?) กำกับ รูปไม่ถูกเก็บ';
+          },function(e){
+            tstat.textContent=readErr(e);
+            zone.appendChild(h('button',{type:'button',class:'ghost retry',onclick:function(){readImage(dataUrl);},text:'ลองอ่านอีกครั้ง'}));
+          }).then(function(){busyCount--;});
+        };
+        /*READ_END*/
+        var confirmCrop=function(okBtn,againBtn){
+          okBtn.disabled=true; againBtn.disabled=true; okBtn.textContent='กำลังปรับภาพ...'; busyCount++;
+          setTimeout(function(){
+            var dataUrl;
+            try{ dataUrl=cropToCanvas(cst,auto.checked).toDataURL('image/jpeg',0.92); }
+            catch(e){ busyCount--; okBtn.disabled=false; againBtn.disabled=false; okBtn.textContent='ตกลง'; tstat.textContent='ปรับภาพไม่สำเร็จ ลองครอปส่วนที่เล็กลง หรือถ่ายใหม่'; return; }
+            cst=null; busyCount--;
+            zone.textContent='';
+            zone.appendChild(h('img',{class:'scanres',src:dataUrl,alt:'ภาพป้ายเครื่องหลังปรับ'}));
+            readImage(dataUrl);
+          },40);
+        };
+        var chk=h('label',{class:'chk',for:id+'-auto'},auto,'ปรับแสงอัตโนมัติ (ลบเงา เพิ่มความคมชัด)');
+        var camBtn=h('button',{type:'button',class:'primary',onclick:function(){camIn.click();},text:'ถ่ายรูป'});
+        var galBtn=h('button',{type:'button',class:'ghost',style:'flex:1',onclick:function(){galIn.click();},text:'เลือกจากคลังภาพ'});
+        wrap.appendChild(h('label',{for:id,text:f.label}));
+        wrap.appendChild(chk);
+        wrap.appendChild(h('div',{class:'sheetbtns'},camBtn,galBtn));
+        wrap.appendChild(camIn); wrap.appendChild(galIn);
+        wrap.appendChild(zone); wrap.appendChild(tstat); wrap.appendChild(tarea);
+        getters[f.key]=function(){return tarea.value;};
+      }else{
+        var input=f.kind==='textarea'
+          ? h('textarea',{id:id,rows:2,text:f.value||''})
+          : h('input',{id:id,type:f.kind,value:f.value==null?'':f.value,inputmode:f.kind==='number'?'decimal':null,step:f.kind==='number'?'any':null,autocomplete:'off',autocapitalize:f.kind==='url'?'none':null,autocorrect:f.kind==='url'?'off':null});
+        wrap.appendChild(h('label',{for:id,text:f.label}));
+        wrap.appendChild(input);
+        if(f.hint) wrap.appendChild(h('div',{class:'hint',text:f.hint}));
+        if(!firstInput&&f.kind!=='date') firstInput=input;
+        getters[f.key]=function(){return input.value;};
+        f._input=input;
+      }
+      form.appendChild(wrap);
+    });
+
+    // วางรูปด้วยคีย์บอร์ด (Ctrl/⌘+V) ตอนที่ไม่ได้พิมพ์อยู่ในช่องข้อความ
+    form.addEventListener('paste',function(e){
+      var t=e.target; if(!pasteTargets.length||(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName))) return;
+      if(pasteTargets[0](e.clipboardData&&e.clipboardData.items)) e.preventDefault();
+    });
+    var err=h('p',{class:'err',role:'alert'});
+    form.appendChild(err);
+    var btns=h('div',{class:'sheetbtns'});
+    form.appendChild(btns);
+
+    function showMain(){
+      btns.textContent=''; err.textContent='';
+      if(o.onDelete) btns.appendChild(h('button',{type:'button',class:'iconbtn','aria-label':'ลบ',title:'ลบ',onclick:showConfirm},icon('trash',22)));
+      btns.appendChild(h('button',{type:'button',class:'ghost',onclick:close,text:'ยกเลิก'}));
+      btns.appendChild(h('button',{type:'submit',class:'primary',text:'บันทึก'}));
+    }
+    function showConfirm(){
+      btns.textContent=''; err.textContent=o.deleteMsg||'ลบรายการนี้? กู้คืนไม่ได้';
+      btns.appendChild(h('button',{type:'button',class:'ghost',onclick:showMain,text:'ไม่ลบ'}));
+      btns.appendChild(h('button',{type:'button',class:'danger',onclick:function(ev){
+        var b=ev.currentTarget; b.disabled=true; b.textContent='กำลังลบ...';
+        o.onDelete(function(){ close(); render(false); },function(e){
+          b.disabled=false; b.textContent='ลบ'; err.textContent=errMsg(e);
+        });
+      },text:'ลบ'}));
+    }
+    showMain();
+
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      var sb=form.querySelector('.primary'); if(!sb||sb.disabled) return;
+      if(busyCount>0){ err.textContent='รอสักครู่ กำลังประมวลผลรูป'; return; }
+      var out={};
+      for(var k in getters) out[k]=getters[k]();
+      for(var i=0;i<o.fields.length;i++){
+        var f=o.fields[i];
+        if(f.required&&!String(out[f.key]||'').trim()){
+          err.textContent='กรอก'+f.label+'ก่อนบันทึก';
+          if(f._input) f._input.focus();
+          return;
+        }
+      }
+      err.textContent='';
+      sb.disabled=true; sb.textContent='กำลังบันทึก...';
+      o.onSave(out,function(){ close(); render(false); },function(e2){
+        sb.disabled=false; sb.textContent='บันทึก'; err.textContent=errMsg(e2);
+      });
+    });
+
+    function onKey(e){ if(e.key==='Escape') close(); }
+    function close(){
+      document.removeEventListener('keydown',onKey);
+      overlay.remove();
+      if(opener&&document.contains(opener)) opener.focus();
+    }
+    overlay.addEventListener('click',function(e){ if(e.target===overlay) close(); });
+    document.addEventListener('keydown',onKey);
+    overlay.appendChild(form);
+    $('sheet-root').appendChild(overlay);
+    if(firstInput&&!firstInput.value) firstInput.focus();
+  }
+
+  function viewPhoto(src){
+    var ov=h('div',{class:'overlay viewer'},h('img',{src:src,alt:'รูปอะไหล่'}),
+      h('button',{class:'iconbtn vclose',type:'button','aria-label':'ปิดรูป',onclick:cl},icon('close',22)));
+    function cl(){ ov.remove(); document.removeEventListener('keydown',k); }
+    function k(e){ if(e.key==='Escape') cl(); }
+    ov.addEventListener('click',cl); document.addEventListener('keydown',k);
+    $('sheet-root').appendChild(ov);
+  }
+
+  /* ---------- สถานที่ ---------- */
+  function addPlace(){
+    openSheet({title:'เพิ่มสถานที่',fields:[
+      {key:'name',label:'ชื่อสถานที่',kind:'text',required:true}
+    ],onSave:function(v,ok,fail){
+      api('upsertPlace',{name:v.name.trim(),icon:'pin'}).then(function(p){ p.devices=[]; data.push(p); ok(); },fail);
+    }});
+  }
+  function editPlace(){
+    var p=curPlace(), hn=p.devices.reduce(function(a,d){return a+d.history.length;},0);
+    openSheet({title:'แก้ไขสถานที่',fields:[
+      {key:'name',label:'ชื่อสถานที่',kind:'text',required:true,value:p.name}
+    ],deleteMsg:'ลบ'+p.name+' พร้อมเครื่องใช้ '+p.devices.length+' รายการ และประวัติ '+hn+' ครั้ง? กู้คืนไม่ได้',
+    onSave:function(v,ok,fail){
+      api('upsertPlace',{id:p.id,name:v.name.trim()}).then(function(s){ p.name=s.name; ok(); },fail);
+    },
+    onDelete:function(ok,fail){
+      api('removePlace',p.id).then(function(){ data.splice(data.indexOf(p),1); go('home'); ok(); },fail);
+    }});
+  }
+
+  /* ---------- เครื่องใช้ ---------- */
+  function deviceFields(d){
+    d=d||{};
+    return [
+      {key:'name',label:'ชื่อเครื่องใช้หรืออุปกรณ์',kind:'text',required:true,value:d.name},
+      {key:'photo',label:'รูปเครื่อง',kind:'photo',pick:true,value:d.photoId||null},
+      {key:'brand',label:'ยี่ห้อ',kind:'text',value:d.brand},
+      {key:'model',label:'รุ่น',kind:'text',value:d.model},
+      {key:'bought',label:'ซื้อเมื่อ',kind:'date',value:d.bought},
+      {key:'warranty',label:'ประกันถึง',kind:'date',value:d.warranty},
+      {key:'tag',label:'ข้อมูลบนป้ายเครื่อง',kind:'tagscan',value:d.tag}
+    ];
+  }
+  function devPayload(v,extra){
+    var o={name:v.name.trim(),brand:v.brand.trim(),model:v.model.trim(),bought:v.bought,warranty:v.warranty,tag:v.tag.trim(),photoData:v.photo||null};
+    for(var k in extra) o[k]=extra[k];
+    return o;
+  }
+  function addDevice(){
+    var p=curPlace();
+    openSheet({title:'เพิ่มเครื่องใช้หรืออุปกรณ์ใน'+p.name,fields:deviceFields(),
+      onSave:function(v,ok,fail){
+        api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId) photoCache[d.photoId]=v.photo; d.history=[]; p.devices.push(d); ok(); },fail);
+      }});
+  }
+  function editDevice(){
+    var p=curPlace(), d=curDev();
+    openSheet({title:'แก้ไขป้ายเครื่อง',fields:deviceFields(d),
+      deleteMsg:'ลบ'+d.name+' และประวัติ '+d.history.length+' ครั้ง? กู้คืนไม่ได้',
+      onSave:function(v,ok,fail){
+        api('upsertDevice',devPayload(v,{id:d.id,placeId:p.id})).then(function(s){
+          d.name=s.name; d.brand=s.brand; d.model=s.model; d.bought=s.bought; d.warranty=s.warranty; d.tag=s.tag; if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo; d.photoId=s.photoId; ok();
+        },fail);
+      },
+      onDelete:function(ok,fail){
+        api('removeDevice',d.id).then(function(){ p.devices.splice(p.devices.indexOf(d),1); go('place',p.id); ok(); },fail);
+      }});
+  }
+
+  /* ---------- ประวัติ ---------- */
+  function recordFields(r){
+    var isNew=!r; r=r||{};
+    return [
+      {key:'item',label:'รายการ',kind:'text',required:true,value:r.item},
+      {key:'date',label:'วันที่',kind:'date',value:isNew?iso(today):r.date},
+      {key:'price',label:'ราคา (บาท)',kind:'number',value:r.price==null?'':r.price},
+      {key:'shop',label:'ร้าน',kind:'text',value:((r.shop||'')+' '+(r.link||'')).trim()},
+      {key:'note',label:'หมายเหตุ',kind:'textarea',value:r.note},
+      {key:'photo',label:'รูปอะไหล่',kind:'photo',value:r.photoId||null}
+    ];
+  }
+  function recPayload(v,extra){
+    var price=v.price===''||v.price==null?null:Number(v.price);
+    var o={type:'maint',item:v.item.trim(),date:v.date,price:isFinite(price)?price:null,shop:v.shop.trim(),link:'',note:v.note.trim(),photoData:v.photo||null};
+    for(var k in extra) o[k]=extra[k];
+    return o;
+  }
+  function addRecord(){
+    var d=curDev();
+    openSheet({title:d.name,fields:recordFields(),
+      onSave:function(v,ok,fail){
+        api('upsertRecord',recPayload(v,{deviceId:d.id})).then(function(s){
+          if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo;
+          d.history.push(s); ok();
+        },fail);
+      }});
+  }
+  function editRecord(r){
+    var d=curDev();
+    openSheet({title:d.name,fields:recordFields(r),
+      deleteMsg:'ลบ "'+r.item+'" ออกจากประวัติ? กู้คืนไม่ได้',
+      onSave:function(v,ok,fail){
+        api('upsertRecord',recPayload(v,{id:r.id,deviceId:d.id})).then(function(s){
+          if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo;
+          var i=d.history.indexOf(r); if(i>=0) d.history[i]=s; ok();
+        },fail);
+      },
+      onDelete:function(ok,fail){
+        api('removeRecord',r.id).then(function(){ d.history.splice(d.history.indexOf(r),1); ok(); },fail);
+      }});
+  }
+
+  /* ---------- เริ่มทำงาน ---------- */
+  function boot(){
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(EXEC_URL)){
+      $('view').textContent=''; $('view').appendChild(h('div',{class:'errbox'},h('p',{text:'ยังไม่ได้ใส่ลิงก์ /exec ในไฟล์ index.html (บรรทัด EXEC_URL)'}))); return;
+    }
+    if(!getToken()){ showLogin(''); return; }
+    var v=$('view'); v.textContent='';
+    renderTop(); $('fab').hidden=true;
+    v.appendChild(h('p',{class:'loading',text:'กำลังโหลดข้อมูล...'}));
+    api('getAll').then(function(res){ data=res; lastLoad=Date.now(); render(false); },function(e){
+      if(!getToken()) return;
+      v.textContent='';
+      v.appendChild(h('div',{class:'errbox'},h('p',{text:'โหลดข้อมูลไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง'+(e&&e.message?' ('+String(e.message).slice(0,120)+')':'')}),
+        h('button',{type:'button',class:'primary',style:'width:100%',onclick:boot,text:'ลองใหม่'})));
+    });
+  }
+  // กลับมาเปิดแอปหลังพักไว้นาน (เช่น แก้ในชีตมา) ให้โหลดข้อมูลใหม่เงียบๆ
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState!=='visible'||!getToken()||!lastLoad||Date.now()-lastLoad<300000) return;
+    if($('sheet-root').children.length) return;
+    api('getAll').then(function(res){
+      if($('sheet-root').children.length) return;
+      data=res; lastLoad=Date.now(); render(false);
+    },function(){});
+  });
+  boot();
+})();
+</script>
+</body>
+</html>
