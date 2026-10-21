@@ -681,7 +681,10 @@ h1:focus{outline:none}
           busyCount++; tstat.textContent='กำลังอ่านข้อความ...';
           var old=zone.querySelector('.retry'); if(old) old.remove();
           api('readTag',dataUrl).then(function(res){
-            tarea.value=(tarea.value.trim()?tarea.value.trim()+'\n':'')+res.text;
+            // ยี่ห้อ/รุ่นไปลงช่องของตัวเอง (เติมเฉพาะช่องที่ยังว่าง)
+            var fill=function(k,val){ var el=form.querySelector('#f-'+k); if(el&&val&&!el.value.trim()) el.value=val; };
+            fill('brand',res.brand); fill('model',res.model);
+            if(res.text) tarea.value=(tarea.value.trim()?tarea.value.trim()+'\n':'')+res.text;
             tstat.textContent='อ่านเสร็จแล้ว ตรวจและแก้คำที่อ่านเพี้ยนได้ ตัวอักษรที่ไม่ชัดมี (?) กำกับ รูปไม่ถูกเก็บ';
           },function(e){
             tstat.textContent=readErr(e);
