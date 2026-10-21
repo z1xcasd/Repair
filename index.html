@@ -160,6 +160,9 @@ h1:focus{outline:none}
 .kvrow .vlink{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 .btnrow{display:flex;gap:8px}.btnrow .smallbtn{flex:1}
 .loginbox{padding:18px;margin-top:8px}
+.sync{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 22px);left:18px;width:18px;height:18px;border-radius:50%;border:2.5px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .8s linear infinite;z-index:5;pointer-events:none}
+.sync[hidden]{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -168,6 +171,7 @@ h1:focus{outline:none}
   <main id="view"></main>
 </div>
 <button class="fab" id="fab" type="button" hidden></button>
+<div class="sync" id="sync" role="status" aria-label="กำลังอัปเดตข้อมูล" hidden></div>
 <div id="sheet-root"></div>
 
 <script>
@@ -224,7 +228,7 @@ h1:focus{outline:none}
         function(){ throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ต'); })
       .then(function(res){
         if(res&&res.ok) return res.data;
-        if(res&&res.auth){ setToken(''); showLogin('รหัสเข้าใช้ไม่ถูกต้อง หรือถูกเปลี่ยนแล้ว'); }
+        if(res&&res.auth){ setToken(''); clearLocal(); showLogin('รหัสเข้าใช้ไม่ถูกต้อง หรือถูกเปลี่ยนแล้ว'); }
         throw new Error((res&&res.error)||'ไม่สำเร็จ');
       });
   }
@@ -284,11 +288,67 @@ h1:focus{outline:none}
     return {t:'ประกันถึง '+fmt(d.warranty),c:''};
   }
 
+  /* ---------- จำข้อมูลและรูปไว้ในเครื่อง ให้เปิดแอปแล้วขึ้นทันที ---------- */
+  var DATA_KEY='repair_data';
+  function loadCachedData(){ try{ var s=localStorage.getItem(DATA_KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
+  var lastSaved='';
+  function saveCachedData(){
+    try{ var s=JSON.stringify(data); if(s!==lastSaved){ localStorage.setItem(DATA_KEY,s); lastSaved=s; } }catch(e){}
+  }
+  // รูปเก็บใน IndexedDB (พื้นที่ของเว็บแอปนี้ใน iPhone) รหัสรูปไม่ซ้ำ เปลี่ยนรูปจะได้รหัสใหม่ จึงจำได้ถาวร
+  var idbP=null;
+  function idb(){
+    if(idbP) return idbP;
+    idbP=new Promise(function(res){
+      try{
+        var rq=indexedDB.open('repair',1);
+        rq.onupgradeneeded=function(){ rq.result.createObjectStore('photos'); };
+        rq.onsuccess=function(){ res(rq.result); };
+        rq.onerror=function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+    return idbP;
+  }
+  function idbGet(id){
+    return idb().then(function(db){ if(!db) return null; return new Promise(function(res){
+      try{ var rq=db.transaction('photos').objectStore('photos').get(id); rq.onsuccess=function(){ res(rq.result||null); }; rq.onerror=function(){ res(null); }; }catch(e){ res(null); }
+    }); });
+  }
+  function idbPut(id,val){
+    idb().then(function(db){ if(!db) return; try{ db.transaction('photos','readwrite').objectStore('photos').put(val,id); }catch(e){} });
+  }
+  function clearLocal(){
+    try{ localStorage.removeItem(DATA_KEY); }catch(e){}
+    lastSaved=''; photoCache={};
+    idb().then(function(db){ if(!db) return; try{ db.transaction('photos','readwrite').objectStore('photos').clear(); }catch(e){} });
+  }
+  // รูปที่ต้องโหลดจากเน็ต รวบเป็นคำขอเดียว (ครั้งละไม่เกิน 20 รูป)
+  var photoQueue={}, photoTimer=null;
+  function flushPhotos(){
+    photoTimer=null;
+    var ids=Object.keys(photoQueue), waiting=photoQueue; photoQueue={};
+    for(var i=0;i<ids.length;i+=20){
+      (function(chunk){
+        api('getPhotos',chunk).then(function(res){
+          chunk.forEach(function(id){
+            var src=res&&res[id];
+            if(src){ photoCache[id]=src; idbPut(id,src); waiting[id].forEach(function(w){ w[0](src); }); }
+            else waiting[id].forEach(function(w){ w[1](new Error('ไม่พบรูป')); });
+          });
+        },function(e){ chunk.forEach(function(id){ waiting[id].forEach(function(w){ w[1](e); }); }); });
+      })(ids.slice(i,i+20));
+    }
+  }
   function loadPhoto(id){
     if(photoCache[id]) return Promise.resolve(photoCache[id]);
     if(photoReq[id]) return photoReq[id];
-    photoReq[id]=api('getPhoto',id).then(function(r){ photoCache[id]=r.data; delete photoReq[id]; return r.data; },
-      function(e){ delete photoReq[id]; throw e; });
+    photoReq[id]=idbGet(id).then(function(src){
+      if(src){ photoCache[id]=src; return src; }
+      return new Promise(function(res,rej){
+        (photoQueue[id]=photoQueue[id]||[]).push([res,rej]);
+        if(!photoTimer) photoTimer=setTimeout(flushPhotos,30);
+      });
+    }).then(function(src){ delete photoReq[id]; return src; },function(e){ delete photoReq[id]; throw e; });
     return photoReq[id];
   }
   function resizeImage(file){
@@ -462,6 +522,7 @@ h1:focus{outline:none}
       fab.appendChild(icon('plus',30)); fab.onclick=cfg.fn;
     }else{ fab.hidden=true; fab.onclick=null; }
     if(nav){ window.scrollTo(0,0); h1.focus({preventScroll:true}); }
+    saveCachedData();
   }
   function go(view,id){
     if(view==='place') S.placeId=id;
@@ -848,7 +909,7 @@ h1:focus{outline:none}
     var p=curPlace();
     openSheet({title:'เพิ่มเครื่องใช้หรืออุปกรณ์ใน'+p.name,fields:deviceFields(),
       onSave:function(v,ok,fail){
-        api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId) photoCache[d.photoId]=v.photo; d.history=[]; p.devices.push(d); ok(); },fail);
+        api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId){ photoCache[d.photoId]=v.photo; idbPut(d.photoId,v.photo); } d.history=[]; p.devices.push(d); ok(); },fail);
       }});
   }
   function editDevice(){
@@ -857,7 +918,7 @@ h1:focus{outline:none}
       deleteMsg:'ลบ'+d.name+' และประวัติ '+d.history.length+' ครั้ง? กู้คืนไม่ได้',
       onSave:function(v,ok,fail){
         api('upsertDevice',devPayload(v,{id:d.id,placeId:p.id})).then(function(s){
-          d.name=s.name; d.brand=s.brand; d.model=s.model; d.bought=s.bought; d.warranty=s.warranty; d.tag=s.tag; if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo; d.photoId=s.photoId; ok();
+          d.name=s.name; d.brand=s.brand; d.model=s.model; d.bought=s.bought; d.warranty=s.warranty; d.tag=s.tag; if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); } d.photoId=s.photoId; ok();
         },fail);
       },
       onDelete:function(ok,fail){
@@ -888,7 +949,7 @@ h1:focus{outline:none}
     openSheet({title:d.name,fields:recordFields(),
       onSave:function(v,ok,fail){
         api('upsertRecord',recPayload(v,{deviceId:d.id})).then(function(s){
-          if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo;
+          if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); }
           d.history.push(s); ok();
         },fail);
       }});
@@ -899,7 +960,7 @@ h1:focus{outline:none}
       deleteMsg:'ลบ "'+r.item+'" ออกจากประวัติ? กู้คืนไม่ได้',
       onSave:function(v,ok,fail){
         api('upsertRecord',recPayload(v,{id:r.id,deviceId:d.id})).then(function(s){
-          if(v.photo&&s.photoId) photoCache[s.photoId]=v.photo;
+          if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); }
           var i=d.history.indexOf(r); if(i>=0) d.history[i]=s; ok();
         },fail);
       },
@@ -909,11 +970,28 @@ h1:focus{outline:none}
   }
 
   /* ---------- เริ่มทำงาน ---------- */
+  function setSync(on){ var el=$('sync'); if(el) el.hidden=!on; }
+  // ดึงข้อมูลล่าสุดจากชีต ถ้าต่างจากที่แสดงอยู่ก็วาดหน้าจอใหม่ (ไม่รบกวนตอนฟอร์มเปิดอยู่)
+  function refresh(){
+    setSync(true);
+    return api('getAll').then(function(res){
+      lastLoad=Date.now(); setSync(false);
+      if($('sheet-root').children.length) return;
+      if(JSON.stringify(res)===JSON.stringify(data)) return;
+      data=res; render(false);
+    },function(e){ setSync(false); throw e; });
+  }
   function boot(){
     if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(EXEC_URL)){
       $('view').textContent=''; $('view').appendChild(h('div',{class:'errbox'},h('p',{text:'ยังไม่ได้ใส่ลิงก์ /exec ในไฟล์ index.html (บรรทัด EXEC_URL)'}))); return;
     }
     if(!getToken()){ showLogin(''); return; }
+    var cached=loadCachedData();
+    if(cached&&cached.length){
+      data=cached; lastSaved=JSON.stringify(cached); render(false);
+      refresh().catch(function(){});  // ออฟไลน์ก็ยังดูข้อมูลที่จำไว้ได้
+      return;
+    }
     var v=$('view'); v.textContent='';
     renderTop(); $('fab').hidden=true;
     v.appendChild(h('p',{class:'loading',text:'กำลังโหลดข้อมูล...'}));
@@ -927,11 +1005,7 @@ h1:focus{outline:none}
   // กลับมาเปิดแอปหลังพักไว้นาน (เช่น แก้ในชีตมา) ให้โหลดข้อมูลใหม่เงียบๆ
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState!=='visible'||!getToken()||!lastLoad||Date.now()-lastLoad<300000) return;
-    if($('sheet-root').children.length) return;
-    api('getAll').then(function(res){
-      if($('sheet-root').children.length) return;
-      data=res; lastLoad=Date.now(); render(false);
-    },function(){});
+    refresh().catch(function(){});
   });
   boot();
 })();
