@@ -359,12 +359,19 @@ h1:focus{outline:none}
     v.appendChild(ul);
   }
 
+  // iPhone: ลิงก์ google.com จะเด้งไปแอป Google ถ้าติดตั้งไว้ จึงสั่งเปิดใน Safari ตรงๆ (x-safari-https ใช้ได้ตั้งแต่ iOS 17)
+  var IS_IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  function openInSafari(e,url){
+    if(!IS_IOS||!/^https:\/\//.test(url)) return;
+    e.preventDefault();
+    window.location.href='x-safari-'+url;
+  }
   function kvRows(rows){
     var box=h('div');
     rows.forEach(function(r){
       box.appendChild(h('div',{class:'kvrow'},
         h('span',{class:'k',text:r[0]}),h('span',{class:'dots','aria-hidden':'true'}),
-        r[3]?h('a',{class:'v vlink',href:r[3],target:'_blank',rel:'noopener',text:r[1],onclick:function(e){e.stopPropagation();},onkeydown:function(e){e.stopPropagation();}})
+        r[3]?h('a',{class:'v vlink',href:r[3],target:'_blank',rel:'noopener',text:r[1],onclick:function(e){e.stopPropagation(); openInSafari(e,r[3]);},onkeydown:function(e){e.stopPropagation();}})
             :h('span',{class:'v'+(r[2]?' warn':''),text:r[1]})));
     });
     return box;
