@@ -158,6 +158,11 @@ h1:focus{outline:none}
 .row .thumb{flex:none;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--plate)}
 .row .chipline{margin-top:6px}
 .kvrow .vlink{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.dropzone{display:flex;align-items:center;justify-content:center;min-height:96px;padding:14px;border:1.5px dashed var(--plate-line);border-radius:12px;color:var(--accent);text-align:center;cursor:pointer;caret-color:transparent;outline:none;-webkit-tap-highlight-color:transparent}
+.dropzone:focus-visible{border-color:var(--accent)}
+.dropzone.over{border-color:var(--accent);background:var(--accent-soft)}
+.dztext{display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}
+.dztext b{font-weight:600}.dztext small{color:var(--mute);font-size:.82rem}
 .btnrow{display:flex;gap:8px}.btnrow .smallbtn{flex:1}
 .loginbox{padding:18px;margin-top:8px}
 .sync{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 22px);left:18px;width:18px;height:18px;border-radius:50%;border:2.5px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .8s linear infinite;z-index:5;pointer-events:none}
@@ -350,6 +355,12 @@ h1:focus{outline:none}
       });
     }).then(function(src){ delete photoReq[id]; return src; },function(e){ delete photoReq[id]; throw e; });
     return photoReq[id];
+  }
+  function dataUrlToBlob(d){
+    var m=/^data:([^;,]+);base64,(.*)$/.exec(d||''); if(!m) throw new Error('รูปไม่ถูกต้อง');
+    var bin=atob(m[2]), arr=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return new Blob([arr],{type:m[1]});
   }
   function resizeImage(file){
     return new Promise(function(resolve,reject){
@@ -645,26 +656,42 @@ h1:focus{outline:none}
             function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น'; })
             .then(function(){ busyCount--; });
         };
-        var pasteImage=function(){
-          hint.textContent='';
-          if(!(navigator.clipboard&&navigator.clipboard.read)){ hint.textContent='เครื่องนี้วางรูปจากปุ่มไม่ได้ ใช้ "เลือกรูป" แทน'; return; }
-          navigator.clipboard.read().then(function(list){
-            for(var i=0;i<list.length;i++){
-              var t=list[i].types.filter(function(x){return /^image\//.test(x);})[0];
-              if(t) return list[i].getType(t).then(useImage);
-            }
-            hint.textContent='ไม่พบรูปในคลิปบอร์ด คัดลอกรูปก่อนแล้วลองใหม่';
-          }).catch(function(){ hint.textContent='วางรูปไม่สำเร็จ คัดลอกรูปใหม่แล้วกด "วางรูป" อีกครั้ง'; });
+        // ลิงก์รูป: ให้สคริปต์ดาวน์โหลดให้ (หน้าเว็บโหลดรูปจากเว็บอื่นเองไม่ได้) แล้วย่อเหมือนรูปอื่น
+        var useUrl=function(u){
+          busyCount++; hint.textContent='กำลังดาวน์โหลดรูปจากลิงก์...';
+          api('fetchImage',u).then(function(r){
+            busyCount--; useImage(dataUrlToBlob(r.data));
+          },function(e){ busyCount--; hint.textContent=String((e&&e.message)||'ดาวน์โหลดรูปไม่สำเร็จ').slice(0,150); });
         };
-        if(f.pick) pasteTargets.push(function(items){
-          for(var i=0;i<(items||[]).length;i++){ if(items[i].kind==='file'&&/^image\//.test(items[i].type)){ useImage(items[i].getAsFile()); return true; } }
+        // อ่านรูปหรือลิงก์จากการวาง/ลาก: รูปมาก่อน แล้วค่อยลิงก์ (uri-list, <img src> ใน html, ข้อความ)
+        var fromData=function(dt){
+          if(!dt) return false;
+          var items=dt.items||[];
+          for(var i=0;i<items.length;i++){ if(items[i].kind==='file'&&/^image\//.test(items[i].type)){ useImage(items[i].getAsFile()); return true; } }
+          var fl=dt.files||[]; for(var j=0;j<fl.length;j++){ if(/^image\//.test(fl[j].type)){ useImage(fl[j]); return true; } }
+          var u='';
+          try{ u=(dt.getData('text/uri-list')||'').split(/\r?\n/).filter(function(x){return x&&x[0]!=='#';})[0]||''; }catch(e){}
+          if(!u){ try{ var m=/<img[^>]+src=["']([^"']+)["']/i.exec(dt.getData('text/html')||''); if(m) u=m[1].replace(/&amp;/g,'&'); }catch(e){} }
+          if(!u){ try{ u=(dt.getData('text/plain')||'').trim(); }catch(e){} }
+          if(/^https?:\/\/\S+$/i.test(u)){ useUrl(u); return true; }
           return false;
-        });
+        };
         wrap.appendChild(h('div',{class:'lbl',text:f.label}));
         if(f.pick){
-          wrap.appendChild(h('div',{class:'btnrow'},
-            h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('image',22),'เลือกรูป'),
-            h('button',{type:'button',class:'smallbtn',onclick:pasteImage},icon('paste',22),'วางรูป')));
+          var dzt=h('span',{class:'dztext'},icon('image',26),h('b',{text:'แตะเพื่อเลือกรูป'}),h('small',{text:'แตะค้างเพื่อวางรูปหรือลิงก์ · ลากรูปมาวางได้'}));
+          var dz=h('div',{class:'dropzone',contenteditable:'true',inputmode:'none',role:'button',tabindex:'0',autocorrect:'off',spellcheck:'false','aria-label':'รูปเครื่อง แตะเพื่อเลือกรูป แตะค้างเพื่อวางรูปหรือลิงก์'});
+          var resetDz=function(){ dz.textContent=''; dz.appendChild(dzt); };
+          resetDz();
+          dz.addEventListener('beforeinput',function(e){ if(e.inputType!=='insertFromPaste'&&e.inputType!=='insertFromDrop') e.preventDefault(); });
+          dz.addEventListener('input',resetDz);
+          dz.addEventListener('click',function(){ file.click(); });
+          dz.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); file.click(); } });
+          dz.addEventListener('paste',function(e){ e.preventDefault(); e.stopPropagation(); hint.textContent=''; if(!fromData(e.clipboardData)) hint.textContent='ไม่พบรูปหรือลิงก์รูปในคลิปบอร์ด'; resetDz(); });
+          ['dragenter','dragover'].forEach(function(t){ dz.addEventListener(t,function(e){ e.preventDefault(); dz.classList.add('over'); }); });
+          dz.addEventListener('dragleave',function(){ dz.classList.remove('over'); });
+          dz.addEventListener('drop',function(e){ e.preventDefault(); dz.classList.remove('over'); hint.textContent=''; if(!fromData(e.dataTransfer)) hint.textContent='ลากได้เฉพาะรูปหรือลิงก์รูป'; resetDz(); });
+          pasteTargets.push(fromData);
+          wrap.appendChild(dz);
         }else{
           wrap.appendChild(h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('camera',22),f.value?'เปลี่ยนรูป':'ถ่ายรูปหรือเลือกรูป'));
         }
@@ -798,7 +825,7 @@ h1:focus{outline:none}
     // วางรูปด้วยคีย์บอร์ด (Ctrl/⌘+V) ตอนที่ไม่ได้พิมพ์อยู่ในช่องข้อความ
     form.addEventListener('paste',function(e){
       var t=e.target; if(!pasteTargets.length||(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName))) return;
-      if(pasteTargets[0](e.clipboardData&&e.clipboardData.items)) e.preventDefault();
+      if(pasteTargets[0](e.clipboardData)) e.preventDefault();
     });
     var err=h('p',{class:'err',role:'alert'});
     form.appendChild(err);
