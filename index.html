@@ -288,7 +288,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
 
   /* ---------- เรียก Apps Script ---------- */
   // ใส่ลิงก์ /exec ของ Apps Script ตรงนี้ (ลิงก์ไม่ใช่ความลับ รหัสเข้าใช้จะพิมพ์ในแอปครั้งแรกและจำไว้ในเครื่อง)
-  var EXEC_URL='ใส่ลิงก์ /exec ที่นี่';
+  var EXEC_URL='https://script.google.com/macros/s/AKfycbxS8FfQ1myYuOYsY1LvU9Ho7aWVMAHIHoXqjr5JrxEiQCXLodWmhDsvgRfE8SUZRvhf/exec';
   var TOKEN_KEY='repair_token';
   function getToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
   function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY,t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
