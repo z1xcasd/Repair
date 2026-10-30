@@ -254,6 +254,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     back:'<path d="M15 5l-7 7 7 7"/>',
     house:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>',
     building:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>',
+    person:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
     pin:'<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
     camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
     pencil:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
@@ -467,7 +468,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
         h('span',{class:'meta',text:p.devices.length+' รายการ'})
       ));
     });
-    grid.appendChild(h('button',{class:'place add',type:'button','aria-label':'เพิ่มสถานที่',title:'เพิ่มสถานที่',onclick:addPlace},icon('plus',36)));
+    grid.appendChild(h('button',{class:'place add',type:'button','aria-label':'เพิ่มสถานที่หรือบุคคล',title:'เพิ่มสถานที่หรือบุคคล',onclick:addPlace},icon('plus',36)));
     v.appendChild(grid);
   }
 
@@ -480,7 +481,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
   function renderPlace(v){
     var p=curPlace();
     if(!p.devices.length){
-      v.appendChild(h('div',{class:'empty',text:'ยังไม่มีเครื่องใช้ใน'+p.name+' กดปุ่ม + มุมขวาล่างเพื่อเพิ่ม'}));
+      v.appendChild(h('div',{class:'empty',text:'ยังไม่มีเครื่องใช้'+(p.icon==='person'?'ของ':'ใน')+p.name+' กดปุ่ม + มุมขวาล่างเพื่อเพิ่ม'}));
       return;
     }
     var ul=h('ul',{class:'rows'});
@@ -961,19 +962,22 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
 
   /* ---------- สถานที่ ---------- */
   function addPlace(){
-    openSheet({title:'เพิ่มสถานที่',fields:[
-      {key:'name',label:'ชื่อสถานที่',kind:'text',required:true}
+    openSheet({title:'เพิ่มสถานที่หรือบุคคล',fields:[
+      {key:'ptype',label:'ประเภท',kind:'seg',value:'place',options:[['place','สถานที่'],['person','บุคคล']]},
+      {key:'name',label:'ชื่อ',kind:'text',required:true}
     ],onSave:function(v,ok,fail){
-      api('upsertPlace',{name:v.name.trim(),icon:'pin'}).then(function(p){ p.devices=[]; data.push(p); ok(); },fail);
+      api('upsertPlace',{name:v.name.trim(),icon:v.ptype==='person'?'person':'pin'}).then(function(p){ p.devices=[]; data.push(p); ok(); },fail);
     }});
   }
   function editPlace(){
     var p=curPlace(), hn=p.devices.reduce(function(a,d){return a+d.history.length;},0);
-    openSheet({title:'แก้ไขสถานที่',fields:[
-      {key:'name',label:'ชื่อสถานที่',kind:'text',required:true,value:p.name}
+    var isP=p.icon==='person';
+    openSheet({title:isP?'แก้ไขบุคคล':'แก้ไขสถานที่',fields:[
+      {key:'ptype',label:'ประเภท',kind:'seg',value:isP?'person':'place',options:[['place','สถานที่'],['person','บุคคล']]},
+      {key:'name',label:'ชื่อ',kind:'text',required:true,value:p.name}
     ],deleteMsg:'ลบ'+p.name+' พร้อมเครื่องใช้ '+p.devices.length+' รายการ และประวัติ '+hn+' ครั้ง? กู้คืนไม่ได้',
     onSave:function(v,ok,fail){
-      api('upsertPlace',{id:p.id,name:v.name.trim()}).then(function(s){ p.name=s.name; ok(); },fail);
+      api('upsertPlace',{id:p.id,name:v.name.trim(),icon:v.ptype==='person'?'person':(isP?'pin':p.icon)}).then(function(s){ p.name=s.name; p.icon=s.icon; ok(); },fail);
     },
     onDelete:function(ok,fail){
       api('removePlace',p.id).then(function(){ data.splice(data.indexOf(p),1); go('home'); ok(); },fail);
@@ -1000,7 +1004,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
   }
   function addDevice(){
     var p=curPlace();
-    openSheet({title:'เพิ่มเครื่องใช้หรืออุปกรณ์ใน'+p.name,fields:deviceFields(),
+    openSheet({title:'เพิ่มเครื่องใช้หรืออุปกรณ์'+(p.icon==='person'?'ของ':'ใน')+p.name,fields:deviceFields(),
       onSave:function(v,ok,fail){
         api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId){ photoCache[d.photoId]=v.photo; idbPut(d.photoId,v.photo); } d.history=[]; p.devices.push(d); ok(); },fail);
       }});
