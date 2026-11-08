@@ -234,6 +234,8 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
   .primary,.fab,.seg button[aria-pressed="true"]{background:var(--accent)}
 }
 @media (prefers-reduced-motion:reduce){button,.row,.place,.rec{transition:none}}
+.sqmove{position:absolute;z-index:1;touch-action:none;cursor:move}
+.sqcrop .ccorner{z-index:2}
 </style>
 </head>
 <body>
@@ -422,6 +424,74 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
       });
     }).then(function(src){ delete photoReq[id]; return src; },function(e){ delete photoReq[id]; throw e; });
     return photoReq[id];
+  }
+  /* ---------- ครอปรูปเครื่องเป็นสี่เหลี่ยมจัตุรัส ให้พอดีกรอบในหน้ารายการ ---------- */
+  // src = dataURL ของรูป, box = ที่วาง UI, onDone(dataUrl) เมื่อกดตกลง, onCancel() เมื่อกดเลือกใหม่
+  function squareCrop(src,box,onDone,onCancel){
+    var im=new Image();
+    im.onerror=function(){ onCancel('อ่านรูปนี้ไม่ได้ ลองรูปอื่น'); };
+    im.onload=function(){
+      var W=im.naturalWidth, H=im.naturalHeight, MIN=Math.min(W,H)*0.15;
+      var S=Math.min(W,H)*0.9, x=(W-S)/2, y=(H-S)/2;
+      box.textContent='';
+      var wrapC=h('div',{class:'cropwrap sqcrop'});
+      var dim=h('div',{class:'cropdim'}), frame=h('div',{class:'cropbox sqbox'});
+      dim.appendChild(frame);
+      wrapC.appendChild(h('img',{src:previewOf(im),alt:'รูปเครื่อง',draggable:'false'}));
+      wrapC.appendChild(dim);
+      var mover=h('div',{class:'sqmove','aria-hidden':'true'});
+      wrapC.appendChild(mover);
+      var cs={};
+      ['tl','tr','bl','br'].forEach(function(c){ cs[c]=h('div',{class:'ccorner','aria-hidden':'true'}); wrapC.appendChild(cs[c]); });
+      var pc=function(v,t){ return (v/t*100)+'%'; };
+      var layout=function(){
+        frame.style.left=pc(x,W); frame.style.top=pc(y,H); frame.style.width=pc(S,W); frame.style.height=pc(S,H);
+        mover.style.left=pc(x,W); mover.style.top=pc(y,H); mover.style.width=pc(S,W); mover.style.height=pc(S,H);
+        cs.tl.style.left=pc(x,W); cs.tl.style.top=pc(y,H);
+        cs.tr.style.left=pc(x+S,W); cs.tr.style.top=pc(y,H);
+        cs.bl.style.left=pc(x,W); cs.bl.style.top=pc(y+S,H);
+        cs.br.style.left=pc(x+S,W); cs.br.style.top=pc(y+S,H);
+      };
+      var toImg=function(ev){ var r=wrapC.getBoundingClientRect(); return [(ev.clientX-r.left)*W/r.width,(ev.clientY-r.top)*H/r.height]; };
+      var drag=function(el,onMove){
+        var on=false, st=null;
+        el.addEventListener('pointerdown',function(ev){ on=true; st={p:toImg(ev),x:x,y:y,S:S}; el.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+        el.addEventListener('pointermove',function(ev){ if(!on) return; onMove(toImg(ev),st); layout(); });
+        var end=function(){ on=false; };
+        el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end);
+      };
+      // ลากกลางกรอบ = เลื่อน
+      drag(mover,function(p,st){
+        x=Math.min(W-S,Math.max(0,st.x+p[0]-st.p[0]));
+        y=Math.min(H-S,Math.max(0,st.y+p[1]-st.p[1]));
+      });
+      // ลากมุม = ย่อ/ขยาย โดยมุมตรงข้ามอยู่กับที่ และคงเป็นสี่เหลี่ยมจัตุรัส
+      [['tl',-1,-1],['tr',1,-1],['bl',-1,1],['br',1,1]].forEach(function(c){
+        drag(cs[c[0]],function(p,st){
+          var ax=c[1]<0?st.x+st.S:st.x, ay=c[2]<0?st.y+st.S:st.y;
+          var room=Math.min(c[1]<0?ax:W-ax, c[2]<0?ay:H-ay);
+          var s=Math.max(Math.abs(p[0]-ax),Math.abs(p[1]-ay));
+          S=Math.max(MIN,Math.min(room,s));
+          x=c[1]<0?ax-S:ax; y=c[2]<0?ay-S:ay;
+        });
+      });
+      layout();
+      var again=h('button',{type:'button',class:'ghost',style:'flex:1',text:'ยกเลิก',onclick:function(){ onCancel(''); }});
+      var ok=h('button',{type:'button',class:'primary',text:'ตกลง',onclick:function(){
+        var out=Math.min(800,Math.round(S));
+        var c=document.createElement('canvas'); c.width=out; c.height=out;
+        var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,out,out);
+        g.drawImage(im,Math.round(x),Math.round(y),Math.round(S),Math.round(S),0,0,out,out);
+        onDone(c.toDataURL('image/jpeg',0.85));
+      }});
+      box.appendChild(h('div',{class:'hint',text:'ลากกรอบเพื่อเลื่อน ลากจุดที่มุมเพื่อย่อ/ขยาย แล้วกด "ตกลง"'}));
+      box.appendChild(wrapC);
+      box.appendChild(h('div',{class:'sheetbtns',style:'margin-top:10px'},again,ok));
+    };
+    im.src=src;
+  }
+  function blobToDataUrl(b){
+    return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(r.result); }; r.onerror=rej; r.readAsDataURL(b); });
   }
   function dataUrlToBlob(d){
     var m=/^data:([^;,]+);base64,(.*)$/.exec(d||''); if(!m) throw new Error('รูปไม่ถูกต้อง');
@@ -710,14 +780,26 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
           prev.hidden=false;
           loadPhoto(f.value).then(function(src){ if(!newData){prev.src=src; prev.alt='รูปเดิม';} },function(){ if(!newData) prev.hidden=true; });
         }
+        var cropArea=h('div',{class:'scanzone',hidden:true}), dz=null;
+        // รูปเครื่อง: ครอปเป็นสี่เหลี่ยมจัตุรัสก่อน ให้พอดีกรอบในหน้ารายการ
+        var startCrop=function(src){
+          if(cropArea.hidden){ busyCount++; }
+          hint.textContent=''; cropArea.hidden=false; if(dz) dz.hidden=true;
+          var finish=function(){ busyCount--; cropArea.hidden=true; cropArea.textContent=''; if(dz) dz.hidden=false; };
+          squareCrop(src,cropArea,function(d){ newData=d; prev.src=d; prev.alt='ตัวอย่างรูป'; prev.hidden=false; finish(); },
+            function(msg){ finish(); hint.textContent=msg||''; });
+        };
+        var cropBlob=function(b){ blobToDataUrl(b).then(startCrop,function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น'; }); };
         file.addEventListener('change',function(){
           var fl=file.files&&file.files[0]; if(!fl) return;
+          if(f.pick){ file.value=''; cropBlob(fl); return; }
           busyCount++; hint.textContent='กำลังย่อรูป...';
           resizeImage(fl).then(function(d){ newData=d; prev.src=d; prev.alt='ตัวอย่างรูป'; prev.hidden=false; hint.textContent=''; },
             function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองเลือกรูปอื่น'; })
             .then(function(){ busyCount--; file.value=''; });
         });
         var useImage=function(fl){
+          if(f.pick){ cropBlob(fl); return; }
           busyCount++; hint.textContent='กำลังย่อรูป...';
           resizeImage(fl).then(function(d){ newData=d; prev.src=d; prev.alt='ตัวอย่างรูป'; prev.hidden=false; hint.textContent=''; },
             function(){ hint.textContent='อ่านรูปนี้ไม่ได้ ลองรูปอื่น'; })
@@ -727,7 +809,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
         var useUrl=function(u){
           busyCount++; hint.textContent='กำลังดาวน์โหลดรูปจากลิงก์...';
           api('fetchImage',u).then(function(r){
-            busyCount--; useImage(dataUrlToBlob(r.data));
+            busyCount--; hint.textContent=''; startCrop(r.data);
           },function(e){ busyCount--; hint.textContent=String((e&&e.message)||'ดาวน์โหลดรูปไม่สำเร็จ').slice(0,150); });
         };
         // อ่านรูปหรือลิงก์จากการวาง/ลาก: รูปมาก่อน แล้วค่อยลิงก์ (uri-list, <img src> ใน html, ข้อความ)
@@ -746,7 +828,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
         wrap.appendChild(h('div',{class:'lbl',text:f.label}));
         if(f.pick){
           var dzt=h('span',{class:'dztext'},icon('image',26),h('b',{text:'แตะเพื่อเลือกรูป'}),h('small',{text:'แตะค้างเพื่อวางรูปหรือลิงก์ · ลากรูปมาวางได้'}));
-          var dz=h('div',{class:'dropzone',contenteditable:'true',inputmode:'none',role:'button',tabindex:'0',autocorrect:'off',spellcheck:'false','aria-label':'รูปเครื่อง แตะเพื่อเลือกรูป แตะค้างเพื่อวางรูปหรือลิงก์'});
+          dz=h('div',{class:'dropzone',contenteditable:'true',inputmode:'none',role:'button',tabindex:'0',autocorrect:'off',spellcheck:'false','aria-label':'รูปเครื่อง แตะเพื่อเลือกรูป แตะค้างเพื่อวางรูปหรือลิงก์'});
           var resetDz=function(){ dz.textContent=''; dz.appendChild(dzt); };
           resetDz();
           dz.addEventListener('beforeinput',function(e){ if(e.inputType!=='insertFromPaste'&&e.inputType!=='insertFromDrop') e.preventDefault(); });
@@ -762,7 +844,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
         }else{
           wrap.appendChild(h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('camera',22),f.value?'เปลี่ยนรูป':'ถ่ายรูปหรือเลือกรูป'));
         }
-        wrap.appendChild(file); wrap.appendChild(prev); wrap.appendChild(hint);
+        wrap.appendChild(cropArea); wrap.appendChild(file); wrap.appendChild(prev); wrap.appendChild(hint);
         getters[f.key]=function(){return newData;};
       }else if(f.kind==='tagscan'){
         var auto=h('input',{type:'checkbox',id:id+'-auto',checked:true});
