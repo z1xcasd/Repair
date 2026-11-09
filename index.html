@@ -236,6 +236,10 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
 @media (prefers-reduced-motion:reduce){button,.row,.place,.rec{transition:none}}
 .sqmove{position:absolute;z-index:1;touch-action:none;cursor:move}
 .sqcrop .ccorner{z-index:2}
+.dzbox{position:relative}
+.dzbox[hidden]{display:none}
+.dzpaste{position:absolute;right:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 12px;border-radius:18px;font:inherit;font-size:.9rem;font-weight:600;color:#1F57B5;background:var(--glass,#fff);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8);box-shadow:inset 0 1px 1px rgba(255,255,255,.95),0 2px 8px rgba(40,70,130,.15)}
+.dropzone{padding-bottom:50px}
 </style>
 </head>
 <body>
@@ -827,19 +831,37 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
         };
         wrap.appendChild(h('div',{class:'lbl',text:f.label}));
         if(f.pick){
-          var dzt=h('span',{class:'dztext'},icon('image',26),h('b',{text:'แตะเพื่อเลือกรูป'}),h('small',{text:'แตะค้างเพื่อวางรูปหรือลิงก์ · ลากรูปมาวางได้'}));
-          dz=h('div',{class:'dropzone',contenteditable:'true',inputmode:'none',role:'button',tabindex:'0',autocorrect:'off',spellcheck:'false','aria-label':'รูปเครื่อง แตะเพื่อเลือกรูป แตะค้างเพื่อวางรูปหรือลิงก์'});
-          var resetDz=function(){ dz.textContent=''; dz.appendChild(dzt); };
+          var dzt=h('span',{class:'dztext'},icon('image',26),h('b',{text:'แตะเพื่อเลือกรูป'}),h('small',{text:'หรือกด วาง เพื่อใส่รูปหรือลิงก์ที่คัดลอกไว้'}));
+          var dzEd=h('div',{class:'dropzone',contenteditable:'true',inputmode:'none',role:'button',tabindex:'0',autocorrect:'off',spellcheck:'false','aria-label':'รูปเครื่อง แตะเพื่อเลือกรูป'});
+          var resetDz=function(){ dzEd.textContent=''; dzEd.appendChild(dzt); };
           resetDz();
-          dz.addEventListener('beforeinput',function(e){ if(e.inputType!=='insertFromPaste'&&e.inputType!=='insertFromDrop') e.preventDefault(); });
-          dz.addEventListener('input',resetDz);
-          dz.addEventListener('click',function(){ file.click(); });
-          dz.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); file.click(); } });
-          dz.addEventListener('paste',function(e){ e.preventDefault(); e.stopPropagation(); hint.textContent=''; if(!fromData(e.clipboardData)) hint.textContent='ไม่พบรูปหรือลิงก์รูปในคลิปบอร์ด'; resetDz(); });
-          ['dragenter','dragover'].forEach(function(t){ dz.addEventListener(t,function(e){ e.preventDefault(); dz.classList.add('over'); }); });
-          dz.addEventListener('dragleave',function(){ dz.classList.remove('over'); });
-          dz.addEventListener('drop',function(e){ e.preventDefault(); dz.classList.remove('over'); hint.textContent=''; if(!fromData(e.dataTransfer)) hint.textContent='ลากได้เฉพาะรูปหรือลิงก์รูป'; resetDz(); });
+          dzEd.addEventListener('beforeinput',function(e){ if(e.inputType!=='insertFromPaste'&&e.inputType!=='insertFromDrop') e.preventDefault(); });
+          dzEd.addEventListener('input',resetDz);
+          dzEd.addEventListener('click',function(){ file.click(); });
+          dzEd.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); file.click(); } });
+          dzEd.addEventListener('paste',function(e){ e.preventDefault(); e.stopPropagation(); hint.textContent=''; if(!fromData(e.clipboardData)) hint.textContent='ไม่พบรูปหรือลิงก์รูปในคลิปบอร์ด'; resetDz(); });
+          ['dragenter','dragover'].forEach(function(t){ dzEd.addEventListener(t,function(e){ e.preventDefault(); dzEd.classList.add('over'); }); });
+          dzEd.addEventListener('dragleave',function(){ dzEd.classList.remove('over'); });
+          dzEd.addEventListener('drop',function(e){ e.preventDefault(); dzEd.classList.remove('over'); hint.textContent=''; if(!fromData(e.dataTransfer)) hint.textContent='ลากได้เฉพาะรูปหรือลิงก์รูป'; resetDz(); });
           pasteTargets.push(fromData);
+          // ปุ่ม "วาง" ในกรอบ: อ่านคลิปบอร์ดตรงๆ (iPhone แตะค้างในกรอบแล้วไม่ขึ้นเมนูวาง)
+          var pasteClip=function(e){
+            e.preventDefault(); e.stopPropagation(); hint.textContent='';
+            if(!(navigator.clipboard&&navigator.clipboard.read)){ hint.textContent='เครื่องนี้วางจากปุ่มไม่ได้ ใช้แตะเพื่อเลือกรูปแทน'; return; }
+            navigator.clipboard.read().then(function(list){
+              var i,t;
+              for(i=0;i<list.length;i++){ t=list[i].types.filter(function(x){return /^image\//.test(x);})[0]; if(t) return list[i].getType(t).then(useImage); }
+              for(i=0;i<list.length;i++){
+                t=list[i].types.indexOf('text/uri-list')>=0?'text/uri-list':(list[i].types.indexOf('text/plain')>=0?'text/plain':'');
+                if(t) return list[i].getType(t).then(function(b){ return b.text(); }).then(function(s){
+                  var u=(String(s).split(/\r?\n/).filter(function(x){return x&&x[0]!=='#';})[0]||'').trim();
+                  if(/^https?:\/\/\S+$/i.test(u)) useUrl(u); else hint.textContent='ที่คัดลอกไว้ไม่ใช่รูปหรือลิงก์รูป';
+                });
+              }
+              hint.textContent='ไม่พบรูปหรือลิงก์รูปในคลิปบอร์ด คัดลอกก่อนแล้วกด วาง';
+            }).catch(function(){ hint.textContent='วางไม่สำเร็จ คัดลอกรูปหรือลิงก์ใหม่แล้วลองอีกครั้ง'; });
+          };
+          dz=h('div',{class:'dzbox'},dzEd,h('button',{type:'button',class:'dzpaste',onclick:pasteClip},icon('paste',18),'วาง'));
           wrap.appendChild(dz);
         }else{
           wrap.appendChild(h('button',{type:'button',class:'smallbtn',onclick:function(){file.click();}},icon('camera',22),f.value?'เปลี่ยนรูป':'ถ่ายรูปหรือเลือกรูป'));
