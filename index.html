@@ -240,6 +240,9 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
 .dzbox[hidden]{display:none}
 .dzpaste{position:absolute;right:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 12px;border-radius:18px;font:inherit;font-size:.9rem;font-weight:600;color:#1F57B5;background:var(--glass,#fff);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8);box-shadow:inset 0 1px 1px rgba(255,255,255,.95),0 2px 8px rgba(40,70,130,.15)}
 .dropzone{padding-bottom:50px}
+.switcher{margin-bottom:2px}
+.rec .price.down{color:var(--bad)}
+.reading .nm{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -324,6 +327,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     v.appendChild(form); inp.focus();
   }
   function errMsg(e){
+    if(e&&e.plain) return e.message; // ข้อความเตือนจากการตรวจในฟอร์ม แสดงตามนั้น
     var m=(e&&e.message)?String(e.message).replace(/^Error:\s*/,''):'';
     return 'ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง'+(m?' ('+m.slice(0,120)+')':'');
   }
@@ -634,6 +638,10 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     v.appendChild(plate);
 
     var panel=h('div',{class:'stack'});
+    if((d.readings||[]).length){
+      panel.appendChild(h('h2',{class:'sec',text:'ค่าที่จด ('+d.readings.length+')'}));
+      readingCards(d).forEach(function(c){ panel.appendChild(c); });
+    }
     var last={};
     d.history.forEach(function(r){ var k=r.item.trim(); if(k&&(!last[k]||r.date>last[k])) last[k]=r.date; });
     var lk=Object.keys(last);
@@ -657,7 +665,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
   function fabConfig(){
     if(S.view==='home') return null;
     if(S.view==='place') return {label:'เพิ่มเครื่องใช้หรืออุปกรณ์',fn:addDevice};
-    return {label:'เพิ่มประวัติบำรุงรักษา',fn:addRecord};
+    return {label:'จดค่าหรือเพิ่มประวัติบำรุงรักษา',fn:function(){ addEntry(); }};
   }
 
   function render(nav){
@@ -764,6 +772,18 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     var overlay=h('div',{class:'overlay'});
     var form=h('form',{class:'sheet',role:'dialog','aria-modal':'true','aria-labelledby':'sheetTitle',novalidate:true});
     form.appendChild(h('h2',{id:'sheetTitle',text:o.title}));
+    if(o.noAnim) form.style.animation='none';
+    // ปุ่มสลับชนิดฟอร์ม (เช่น จดค่า / บำรุงรักษา) — กดแล้วเปลี่ยนเป็นอีกฟอร์มทันที
+    if(o.switcher){
+      var sw=h('div',{class:'seg switcher',role:'group','aria-label':'เลือกสิ่งที่จะเพิ่ม'});
+      o.switcher.options.forEach(function(op){
+        sw.appendChild(h('button',{type:'button','aria-pressed':op[0]===o.switcher.value?'true':'false',text:op[1],onclick:function(){
+          if(op[0]===o.switcher.value) return;
+          close(); o.switcher.onSwitch(op[0]);
+        }}));
+      });
+      form.appendChild(h('div',{class:'field'},sw));
+    }
 
     o.fields.forEach(function(f){
       var id='f-'+f.key, wrap=h('div',{class:'field'});
@@ -1052,7 +1072,7 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     document.addEventListener('keydown',onKey);
     overlay.appendChild(form);
     $('sheet-root').appendChild(overlay);
-    if(firstInput&&!firstInput.value) firstInput.focus();
+    if(firstInput&&!firstInput.value&&!o.noFocus) firstInput.focus();
   }
 
   function viewPhoto(src){
@@ -1098,11 +1118,12 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
       {key:'model',label:'รุ่น',kind:'text',value:d.model},
       {key:'bought',label:'ซื้อเมื่อ',kind:'date',value:d.bought},
       {key:'warranty',label:'ประกันถึง',kind:'date',value:d.warranty},
+      {key:'unit',label:'หน่วยของค่าที่จด',kind:'text',value:d.unit},
       {key:'tag',label:'ข้อมูลบนป้ายเครื่อง',kind:'tagscan',value:d.tag}
     ];
   }
   function devPayload(v,extra){
-    var o={name:v.name.trim(),brand:v.brand.trim(),model:v.model.trim(),bought:v.bought,warranty:v.warranty,tag:v.tag.trim(),photoData:v.photo||null};
+    var o={name:v.name.trim(),brand:v.brand.trim(),model:v.model.trim(),bought:v.bought,warranty:v.warranty,tag:v.tag.trim(),unit:v.unit.trim(),photoData:v.photo||null};
     for(var k in extra) o[k]=extra[k];
     return o;
   }
@@ -1110,16 +1131,16 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     var p=curPlace();
     openSheet({title:'เพิ่มเครื่องใช้หรืออุปกรณ์'+(p.icon==='person'?'ของ':'ใน')+p.name,fields:deviceFields(),
       onSave:function(v,ok,fail){
-        api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId){ photoCache[d.photoId]=v.photo; idbPut(d.photoId,v.photo); } d.history=[]; p.devices.push(d); ok(); },fail);
+        api('upsertDevice',devPayload(v,{placeId:p.id})).then(function(d){ if(v.photo&&d.photoId){ photoCache[d.photoId]=v.photo; idbPut(d.photoId,v.photo); } d.history=[]; d.readings=[]; p.devices.push(d); ok(); },fail);
       }});
   }
   function editDevice(){
     var p=curPlace(), d=curDev();
     openSheet({title:'แก้ไขป้ายเครื่อง',fields:deviceFields(d),
-      deleteMsg:'ลบ'+d.name+' และประวัติ '+d.history.length+' ครั้ง? กู้คืนไม่ได้',
+      deleteMsg:'ลบ'+d.name+' และประวัติ '+d.history.length+' ครั้ง'+((d.readings||[]).length?' ค่าที่จด '+d.readings.length+' ครั้ง':'')+'? กู้คืนไม่ได้',
       onSave:function(v,ok,fail){
         api('upsertDevice',devPayload(v,{id:d.id,placeId:p.id})).then(function(s){
-          d.name=s.name; d.brand=s.brand; d.model=s.model; d.bought=s.bought; d.warranty=s.warranty; d.tag=s.tag; if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); } d.photoId=s.photoId; ok();
+          d.name=s.name; d.brand=s.brand; d.model=s.model; d.bought=s.bought; d.warranty=s.warranty; d.tag=s.tag; d.unit=s.unit; if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); } d.photoId=s.photoId; ok();
         },fail);
       },
       onDelete:function(ok,fail){
@@ -1145,12 +1166,27 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
     for(var k in extra) o[k]=extra[k];
     return o;
   }
-  function addRecord(){
+  /* ---------- ปุ่ม + ในหน้าเครื่อง: จดค่า หรือ บำรุงรักษา (จำอันที่ใช้ล่าสุดของแต่ละเครื่อง) ---------- */
+  function kindKey(d){ return 'repair_kind_'+d.id; }
+  function addEntry(kind,noAnim){
     var d=curDev();
-    openSheet({title:d.name,fields:recordFields(),
+    if(!kind){
+      try{ kind=localStorage.getItem(kindKey(d)); }catch(e){}
+      if(kind!=='reading'&&kind!=='maint') kind=(d.readings||[]).length?'reading':'maint';
+    }
+    var sw={value:kind,options:[['reading','จดค่า'],['maint','บำรุงรักษา']],onSwitch:function(k){
+      try{ localStorage.setItem(kindKey(d),k); }catch(e){}
+      addEntry(k,true);
+    }};
+    if(kind==='reading') addReading(sw,noAnim); else addRecord(sw,noAnim);
+  }
+  function addRecord(sw,noAnim){
+    var d=curDev();
+    openSheet({title:d.name,switcher:sw,noAnim:noAnim,noFocus:noAnim,fields:recordFields(),
       onSave:function(v,ok,fail){
         api('upsertRecord',recPayload(v,{deviceId:d.id})).then(function(s){
           if(v.photo&&s.photoId){ photoCache[s.photoId]=v.photo; idbPut(s.photoId,v.photo); }
+          try{ localStorage.setItem(kindKey(d),'maint'); }catch(e){}
           d.history.push(s); ok();
         },fail);
       }});
@@ -1168,6 +1204,83 @@ button:not([disabled]):active,.rec:active,.plate:active{opacity:.7}
       onDelete:function(ok,fail){
         api('removeRecord',r.id).then(function(){ d.history.splice(d.history.indexOf(r),1); ok(); },fail);
       }});
+  }
+
+  /* ---------- ค่าที่จด (เช่น หน่วยมิเตอร์ไฟฟ้า มอเตอร์น้ำ) ---------- */
+  function unitOf(d){ return (d.unit||'').trim()||'หน่วย'; }
+  function num(n){ return Number(n).toLocaleString('th-TH',{maximumFractionDigits:2}); }
+  // เรียงเก่า → ใหม่ (วันเดียวกันเรียงตามลำดับที่จด)
+  function sortedReadings(d){
+    return (d.readings||[]).map(function(x,i){return [x,i];}).sort(function(a,b){
+      return a[0].date<b[0].date?-1:(a[0].date>b[0].date?1:a[1]-b[1]);
+    }).map(function(p){return p[0];});
+  }
+  // ค่าก่อนหน้าของวันที่ที่กำลังจด (ไม่นับรายการที่กำลังแก้)
+  function prevReading(d,date,skip){
+    var list=sortedReadings(d).filter(function(x){return x!==skip&&x.date<=date;});
+    return list.length?list[list.length-1]:null;
+  }
+  function readingFields(rd){
+    var isNew=!rd; rd=rd||{};
+    return [
+      {key:'date',label:'วันที่',kind:'date',value:isNew?iso(today):rd.date},
+      {key:'value',label:'ค่าที่อ่านได้',kind:'number',required:true,value:rd.value==null?'':rd.value},
+      {key:'note',label:'หมายเหตุ',kind:'textarea',value:rd.note}
+    ];
+  }
+  // ตรวจก่อนบันทึก: ค่าน้อยกว่าครั้งก่อน เตือนก่อน 1 ครั้ง (กดบันทึกซ้ำเพื่อยืนยัน เช่น เปลี่ยนมิเตอร์ใหม่)
+  function checkReading(d,v,skip,state){
+    var val=Number(v.value);
+    if(!isFinite(val)) return 'กรอกค่าเป็นตัวเลข';
+    var p=prevReading(d,v.date||iso(today),skip);
+    if(p&&val<p.value&&state.warned!==val){
+      state.warned=val;
+      return 'ค่าน้อยกว่าครั้งก่อน ('+num(p.value)+' เมื่อ '+fmt(p.date)+') ถ้าเปลี่ยนมิเตอร์ใหม่หรือถูกต้องแล้ว กดบันทึกอีกครั้ง';
+    }
+    return '';
+  }
+  function addReading(sw,noAnim){
+    var d=curDev(), st={};
+    openSheet({title:d.name,switcher:sw,noAnim:noAnim,noFocus:noAnim,fields:readingFields(),
+      onSave:function(v,ok,fail){
+        var msg=checkReading(d,v,null,st); if(msg){ fail({message:msg,plain:true}); return; }
+        api('upsertReading',{deviceId:d.id,date:v.date||iso(today),value:Number(v.value),note:v.note.trim()}).then(function(s){
+          try{ localStorage.setItem(kindKey(d),'reading'); }catch(e){}
+          (d.readings=d.readings||[]).push(s); ok();
+        },fail);
+      }});
+  }
+  function editReading(rd){
+    var d=curDev(), st={};
+    openSheet({title:d.name,fields:readingFields(rd),
+      deleteMsg:'ลบค่า '+num(rd.value)+' '+unitOf(d)+' วันที่ '+fmt(rd.date)+'? กู้คืนไม่ได้',
+      onSave:function(v,ok,fail){
+        var msg=checkReading(d,v,rd,st); if(msg){ fail({message:msg,plain:true}); return; }
+        api('upsertReading',{id:rd.id,deviceId:d.id,date:v.date||rd.date,value:Number(v.value),note:v.note.trim()}).then(function(s){
+          var i=d.readings.indexOf(rd); if(i>=0) d.readings[i]=s; ok();
+        },fail);
+      },
+      onDelete:function(ok,fail){
+        api('removeReading',rd.id).then(function(){ d.readings.splice(d.readings.indexOf(rd),1); ok(); },fail);
+      }});
+  }
+  function readingCards(d){
+    var list=sortedReadings(d), u=unitOf(d), out=[];
+    list.forEach(function(rd,i){
+      var p=i?list[i-1]:null, diffEl=null, detail='ครั้งแรกที่จด';
+      if(p){
+        var diff=rd.value-p.value, days=Math.round((parse(rd.date)-parse(p.date))/86400000);
+        diffEl=h('span',{class:'price'+(diff<0?' down':''),text:(diff>=0?'+':'−')+num(Math.abs(diff))});
+        if(diff<0) detail='ค่าลดลงจากครั้งก่อน (เปลี่ยนมิเตอร์?)';
+        else detail='ใช้ไป '+num(diff)+' '+u+(days>0?' ใน '+days+' วัน · เฉลี่ย '+num(Math.round(diff/days*100)/100)+' '+u+'/วัน':' ในวันเดียวกัน');
+      }
+      out.unshift(h('article',{class:'card rec reading',role:'button',tabindex:'0','aria-label':'แก้ไขค่า '+num(rd.value)+' '+u,onclick:function(){editReading(rd);},onkeydown:function(e){if(e.key==='Enter') editReading(rd);}},
+        h('div',{class:'top2'},h('span',{class:'nm',text:num(rd.value)+' '+u}),diffEl),
+        h('div',{class:'when',text:fmt(rd.date)+' ('+ago(rd.date)+')'}),
+        h('div',{class:'when',text:detail}),
+        rd.note?h('p',{class:'note',text:rd.note}):null));
+    });
+    return out;
   }
 
   /* ---------- เริ่มทำงาน ---------- */
